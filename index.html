@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevForge // Roblox RTS, Python BSS Macro & Blender 3D</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --bg-card-hover: #1c222b;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --font-mono: 'Fira Code', 'Cascadia Code', Consolas, monospace;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    [data-theme="blender"] {
+      --accent: #ea7600;
+      --accent-glow: rgba(234, 118, 0, 0.25);
+    }
+
+    [data-theme="bss"] {
+      --accent: #facc15;
+      --accent-glow: rgba(250, 204, 21, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 15% 10%, var(--accent-glow), transparent 35%),
+        radial-gradient(circle at 85% 75%, rgba(63, 185, 80, 0.08), transparent 35%);
+      min-height: 100vh;
+    }
+
+    /* Header & Nav */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      background: rgba(13, 17, 23, 0.85);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    nav {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+    }
+
+    .theme-switcher {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      background: var(--bg-card);
+      padding: 0.25rem 0.4rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .theme-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .theme-btn:hover { transform: scale(1.15); }
+    .theme-btn.active { border-color: #fff; }
+    .theme-blue { background: #38bdf8; }
+    .theme-orange { background: #ea7600; }
+    .theme-gold { background: #facc15; }
+
+    /* Layout */
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 5rem;
+    }
+
+    section {
+      margin-bottom: 5rem;
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4.5vw, 3.3rem);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: clamp(1.5rem, 3vw, 2.1rem);
+      margin-bottom: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p.lead {
+      color: var(--text-muted);
+      font-size: 1.08rem;
+      max-width: 65ch;
+    }
+
+    /* Hero Grid */
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 2.5rem;
+      align-items: center;
+      padding-top: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .project-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1.1rem;
+      border-radius: 10px;
+      min-width: 130px;
+    }
+
+    .stat-val {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Terminal Widget */
+    .terminal {
+      background: #090c10;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .terminal-bar {
+      background: #161b22;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dots span {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
+    .dots span:nth-child(1) { background: #ff5f56; }
+    .dots span:nth-child(2) { background: #ffbd2e; }
+    .dots span:nth-child(3) { background: #27c93f; }
+
+    .terminal-body {
+      padding: 1rem;
+      height: 260px;
+      overflow-y: auto;
+      color: #c9d1d9;
+    }
+
+    .terminal-line {
+      margin-bottom: 0.4rem;
+      word-break: break-word;
+    }
+
+    .cmd-prompt { color: var(--success); }
+    .cmd-accent { color: var(--accent); }
+    .cmd-warn { color: var(--warning); }
+
+    .terminal-input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1rem;
+      border-top: 1px solid var(--border);
+      background: #0d1117;
+    }
+
+    .terminal-input-row input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .quick-cmds {
+      display: flex;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: #11161d;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .chip-btn {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Project Cards & Interactive Panels */
+    .project-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 2rem;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.6rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .feature-list {
+      list-style: none;
+      margin: 1rem 0;
+    }
+
+    .feature-list li {
+      padding: 0.35rem 0;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+    }
+
+    .feature-list li::before {
+      content: "▹";
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #21262d;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn:hover {
+      background: #30363d;
+      border-color: var(--accent);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0d1117;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      background: var(--accent);
+    }
+
+    /* Roblox Civ + CoH Simulator */
+    .rts-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin: 1rem 0;
+    }
+
+    .hex-tile {
+      aspect-ratio: 1;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .hex-tile:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .hex-tile.owned {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.5);
+    }
+
+    .hex-tile.cover {
+      box-shadow: inset 0 0 0 2px rgba(63, 185, 80, 0.45);
+    }
+
+    .hex-tile.enemy {
+      background: rgba(248, 81, 73, 0.14);
+      border-color: rgba(248, 81, 73, 0.5);
+    }
+
+    .hex-label {
+      font-size: 0.62rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .rts-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      background: #0d1117;
+      padding: 0.7rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .log-box {
+      background: #090c10;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      height: 85px;
+      overflow-y: auto;
+      margin-top: 0.75rem;
+    }
+
+    /* BSS Macro Widget */
+    .macro-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    @media (max-width: 520px) {
+      .macro-controls { grid-template-columns: 1fr; }
+    }
+
+    .select-input {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .bee-field {
+      position: relative;
+      height: 110px;
+      background: repeating-linear-gradient(
+        45deg,
+        #121912,
+        #121912 12px,
+        #162116 12px,
+        #162116 24px
+      );
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 0.75rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bee-bot {
+      position: absolute;
+      font-size: 1.5rem;
+      transition: all 0.45s ease-in-out;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8));
+    }
+
+    .field-overlay {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: rgba(13, 17, 23, 0.8);
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      z-index: 2;
+    }
+
+    /* Blender 3D Canvas */
+    .viewport-wrapper {
+      position: relative;
+      background: #1a1d24;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .viewport-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.55rem 0.9rem;
+      background: #12151a;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    canvas#blenderCanvas {
+      display: block;
+      width: 100%;
+      height: 310px;
+      cursor: grab;
+    }
+
+    canvas#blenderCanvas:active {
+      cursor: grabbing;
+    }
+
+    .viewport-hint {
+      position: absolute;
+      bottom: 10px;
+      left: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: rgba(13, 17, 23, 0.75);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      pointer-events: none;
+    }
+
+    /* Side Quests Grid */
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .mini-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 7px;
+      background: #0d1117;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 0.75rem 1.1rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s ease;
+      z-index: 999;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo">&lt;<span>DevForge</span> /&gt;</a>
+      <nav>
+        <a href="#roblox">Roblox Game</a>
+        <a href="#python">BSS Macro</a>
+        <a href="#blender">Blender 3D</a>
+        <a href="#sidequests">Side Quests</a>
+        <div class="theme-switcher" title="Kies accentkleur">
+          <button class="theme-btn theme-blue active" onclick="setTheme('default', this)" aria-label="Roblox Blauw"></button>
+          <button class="theme-btn theme-orange" onclick="setTheme('blender', this)" aria-label="Blender Oranje"></button>
+          <button class="theme-btn theme-gold" onclick="setTheme('bss', this)" aria-label="BSS Goud"></button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div>
+        <div class="badge">
+          <span class="pulse-dot"></span>
+          Status: LuaU Pathfinding & Python OCR testen
+        </div>
+        <h1>Games bouwen, macros scripten & werelden in 3D modelleren.</h1>
+        <p class="lead">
+          Welkom in mijn dev-werkplaats. Overdag en 's avonds bouw ik aan een ambitieuze <strong>Roblox-strategiegame</strong> (een mix van <em>Civilization</em> en <em>Company of Heroes</em>), schrijf ik een slimme <strong>Bee Swarm Simulator macro in Python</strong> en modelleer ik low-poly assets in <strong>Blender</strong>.
+        </p>
+
+        <div class="hero-stats">
+          <div class="stat-box">
+            <div class="stat-val" id="coffeeCount">42</div>
+            <div class="stat-label">Koppen koffie</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">LuaU + Py</div>
+            <div class="stat-label">Main Stack</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">64+</div>
+            <div class="stat-label">Blender Assets</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIEVE TERMINAL -->
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span style="color: var(--text-muted); font-size: 0.78rem;">dev@werkplaats:~</span>
+          <span style="font-size: 0.72rem; color: var(--accent);">bash</span>
+        </div>
+        <div class="terminal-body" id="termBody">
+          <div class="terminal-line"><span class="cmd-accent">DevOS v2.4</span> geladen. Typ <span class="cmd-warn">'help'</span> of klik op een knop hieronder.</div>
+        </div>
+        <div class="quick-cmds">
+          <button class="chip-btn" onclick="runCmd('help')">help</button>
+          <button class="chip-btn" onclick="runCmd('roblox')">roblox</button>
+          <button class="chip-btn" onclick="runCmd('bss')">bss</button>
+          <button class="chip-btn" onclick="runCmd('blender')">blender</button>
+          <button class="chip-btn" onclick="runCmd('koffie')">+ koffie</button>
+        </div>
+        <div class="terminal-input-row">
+          <span class="cmd-prompt">$</span>
+          <input type="text" id="termInput" placeholder="Typ een commando (bijv. help)..." autocomplete="off" />
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECT 1: ROBLOX CIV + COH -->
+    <section id="roblox">
+      <div class="section-header">
+        <div class="badge">Roblox Studio • LuaU</div>
+        <h2>Project: "Frontline Empires" (Civ × Company of Heroes)</h2>
+        <p class="lead">Grootschalig rijk-management ontmoet intense squad-gebaseerde tactische gevechten in realtime.</p>
+      </div>
+
+      <div class="project-grid">
+        <div class="card">
+          <h3>Hoe het werkt</h3>
+          <p style="color: var(--text-muted); margin-bottom: 0.75rem;">
+            Waarom kiezen tussen een 4X-empire builder en een tactische RTS? In deze Roblox-game claim je hex-sectoren voor grondstoffen en onderzoek je nieuwe tijdperken (zoals <em>Civilization</em>), terwijl je jouw eenheden in squads bestuurt met dekking, flankeren en onderdrukkingsvuur (zoals <em>Company of Heroes</em>).
+          </p>
+          <div class="tag-list">
+            <span class="tag">Roblox LuaU</span>
+            <span class="tag">Hex-Grid Generatie</span>
+            <span class="tag">Cover & Suppression AI</span>
+            <span class="tag">Tech Tree</span>
+          </div>
+          <ul class="feature-list">
+            <li><strong>Sector Economie:</strong> Verover hexes voor Mankracht, Brandstof & Wetenschap.</li>
+            <li><strong>Tactische Dekking:</strong> Muurtjes, loopgraven en kraters geven echte schade-reductie.</li>
+            <li><strong>Tijdperk Progressie:</strong> Upgrade je leger van Musketiers naar Tanks en Drones.</li>
+          </ul>
+        </div>
+
+        <!-- INTERACTIEVE MINI-GAME -->
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <h3>Mini-Simulatie: Sector Tactiek</h3>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn" onclick="upgradeEra()">⚡ Tijdperk (<span id="eraName">WO2</span>)</button>
+              <button class="btn btn-primary" onclick="resetRts()">Reset Kaart</button>
+            </div>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.35rem;">
+            Klik op een tegel om een squad te sturen of aan te vallen. Groene rand = dekking!
+          </p>
+
+          <div class="rts-hud" style="margin-top:0.75rem;">
+            <span>👥 Mankracht: <strong id="resManpower" style="color:var(--accent)">120</strong></span>
+            <span>⛽ Brandstof: <strong id="resFuel" style="color:var(--warning)">60</strong></span>
+            <span>🚩 Sectoren: <strong id="resSectors" style="color:var(--success)">2/15</strong></span>
+          </div>
+
+          <div class="rts-board" id="rtsBoard"></div>
+
+          <div class="log-box" id="rtsLog">
+            <div>[LuaU] Hex-grid geïnitialiseerd. Selecteer een vijandelijk of leeg vakje.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECT 2: PYTHON BSS MACRO -->
+    <section id="python">
+      <div class="section-header">
+        <div class="badge">Python 3.11 • OpenCV • PyAutoGUI</div>
+        <h2>Bee Swarm Simulator (BSS) Macro</h2>
+        <p class="lead">Volledig geautomatiseerde pollen-farming, nectar-rotatie en token-herkenning gebouwd in Python.</p>
+      </div>
+
+      <div class="project-grid">
+        <!-- INTERACTIEVE MACRO SIM -->
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <h3>Live Macro Simulator</h3>
+            <button class="btn btn-primary" id="macroToggleBtn" onclick="toggleMacro()">▶ Start Macro</button>
+          </div>
+
+          <div class="macro-controls">
+            <div>
+              <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">Doelveld (Field)</label>
+              <select class="select-input" id="fieldSelect" onchange="updateFieldName()">
+                <option value="Pine Tree Forest">🌲 Pine Tree Forest (Blue)</option>
+                <option value="Pepper Patch">🌶️ Pepper Patch (Red)</option>
+                <option value="Coconut Field">🥥 Coconut Field (White)</option>
+                <option value="Strawberry Field">🍓 Strawberry Field</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">Patroon (Pattern)</label>
+              <select class="select-input" id="patternSelect">
+                <option value="CornerXSnake">CornerXSnake.py</option>
+                <option value="e_lol">e_lol_diamond.py</option>
+                <option value="Squares">SpiralSquares.py</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <label class="toggle-row">
+              <span>Auto-Convert</span>
+              <input type="checkbox" id="chkConvert" checked />
+            </label>
+            <label class="toggle-row">
+              <span>OpenCV Token Scan</span>
+              <input type="checkbox" id="chkTokens" checked />
+            </label>
+          </div>
+
+          <div class="bee-field" id="beeField">
+            <span class="bee-bot" id="beeBot">🐝</span>
+            <span class="field-overlay" id="fieldOverlay">Status: Idle • 0 Honey/sec</span>
+          </div>
+
+          <div class="log-box" id="macroLog">
+            <div>[Python] Klaar om te draaien. Kies een veld en klik op 'Start Macro'.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Technische Architectuur</h3>
+          <p style="color: var(--text-muted); margin-bottom: 0.75rem;">
+            In plaats van domme muisklikken gebruikt de macro computer vision (OpenCV) om het scherm uit te lezen, rugzak-capaciteit te herkennen en automatisch bij te sturen als de speler van het veld afloopt.
+          </p>
+          <div class="tag-list">
+            <span class="tag">Python</span>
+            <span class="tag">OpenCV (cv2)</span>
+            <span class="tag">mss Screen Capture</span>
+            <span class="tag">Discord Webhooks</span>
+          </div>
+          <ul class="feature-list">
+            <li><strong>Reset & Pathing:</strong> Loopt pixel-nauwkeurig vanaf de hive via de cannon naar elk veld.</li>
+            <li><strong>Drift Compensatie:</strong> Detecteert via template matching of de speler nog op bloemen staat.</li>
+            <li><strong>Webhook Rapportage:</strong> Stuurt elk uur een grafiek met Honey/hr naar Discord.</li>
+            <li><strong>Auto-Quests & Planters:</strong> Houdt automatisch Nectar-buffs op 100%.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECT 3: BLENDER 3D -->
+    <section id="blender">
+      <div class="section-header">
+        <div class="badge">Blender 4.x • Low-Poly & Hard-Surface</div>
+        <h2>3D Modellering & Asset Pipeline</h2>
+        <p class="lead">Van schets tot geoptimaliseerde meshes klaar voor Roblox Studio.</p>
+      </div>
+
+      <div class="project-grid">
+        <div class="card">
+          <h3>Stijl & Optimalisatie</h3>
+          <p style="color: var(--text-muted); margin-bottom: 0.75rem;">
+            Voor een RTS-game in Roblox met tientallen eenheden tegelijk is een lage polycount cruciaal. In Blender modelleer ik modulaire voertuigen, gebouwen en terrein-tegels met strakke <em>Vertex Colors</em> en simpele PBR-materialen.
+          </p>
+          <div class="tag-list">
+            <span class="tag">Hard-Surface</span>
+            <span class="tag">Low-Poly</span>
+            <span class="tag">UV Unwrapping</span>
+            <span class="tag">FBX Export</span>
+          </div>
+          <ul class="feature-list">
+            <li><strong>Voertuigen:</strong> Modulaire tanks met losse draaiende koepels (turrets).</li>
+            <li><strong>Terrein:</strong> Hex-tegels met bos, bunkers, bruggen en krater-variaties.</li>
+            <li><strong>Rigging:</strong> Basis-animaties voor infanterie en rupsbanden.</li>
+          </ul>
+        </div>
+
+        <!-- INTERACTIEVE BLENDER VIEWPORT -->
+        <div class="viewport-wrapper">
+          <div class="viewport-topbar">
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <button class="chip-btn" onclick="setModel('tank')">🛡️ Low-Poly Tank</button>
+              <button class="chip-btn" onclick="setModel('hex')">⬡ Hex Bunker</button>
+              <button class="chip-btn" onclick="setModel('crystal')">💎 Honeydrop</button>
+            </div>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="chip-btn" onclick="setShading('wire')">Wireframe</button>
+              <button class="chip-btn" onclick="setShading('solid')">Solid</button>
+              <button class="chip-btn" onclick="toggleSpin()" id="spinBtn">⏸ Auto-Spin</button>
+            </div>
+          </div>
+          <canvas id="blenderCanvas"></canvas>
+          <div class="viewport-hint">Sleep met muis/vinger om 3D-model te draaien • <span id="polyStats">14 Verts | 18 Edges</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIDE QUESTS -->
+    <section id="sidequests">
+      <div class="section-header">
+        <div class="badge">Experimenten & Mini-Tools</div>
+        <h2>Andere Kleine Projecten</h2>
+        <p class="lead">Tussendoor pruts ik graag aan handige tools, shaders en bots.</p>
+      </div>
+
+      <div class="mini-grid">
+        <div class="mini-card">
+          <div>
+            <h3>🤖 Discord Dev-Bot</h3>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.35rem;">
+              Een Python bot die GitHub commits, Roblox API-status en BSS macro statistieken netjes in één kanaal post.
+            </p>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">
+              <span>Voortgang</span><span>85%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <div>
+            <h3>📐 LuaU Quadtree Benchmark</h3>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.35rem;">
+              Snelle ruimtelijke indexering zodat 200+ soldaten op de kaart zonder lag doelwitten kunnen scannen.
+            </p>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">
+              <span>Voortgang</span><span>95%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <div>
+            <h3>🎨 Blender Batch Exporter</h3>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.35rem;">
+              Klein Blender Python-add-on script dat alle geselecteerde meshes los centreert en als .fbx exporteert.
+            </p>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">
+              <span>Voortgang</span><span>100%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <div>
+            <h3>☕ Koffie & Idea Pad</h3>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.35rem;">
+              Heb je een idee voor een eenheid in de Roblox game of een feature voor de BSS macro?
+            </p>
+          </div>
+          <button class="btn" onclick="showToast('Bedankt voor je interesse! Stuur gerust een DM of open een issue op GitHub: dadaverver2')">
+            💡 Stuur een Dev-Idee
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Gebouwd met HTML, CSS, JavaScript & veel koffie • <span style="color:var(--accent)">DevForge Portfolio</span></p>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* =========================
+       THEMA & TOAST
+    ========================= */
+    function setTheme(theme, btn) {
+      if (theme === 'default') {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3200);
+    }
+
+    /* =========================
+       INTERACTIEVE TERMINAL
+    ========================= */
+    const termBody = document.getElementById('termBody');
+    const termInput = document.getElementById('termInput');
+    let coffees = 42;
+
+    const commands = {
+      help: "Beschikbare commando's: <span class='cmd-accent'>roblox</span>, <span class='cmd-accent'>bss</span>, <span class='cmd-accent'>blender</span>, <span class='cmd-accent'>koffie</span>, <span class='cmd-accent'>status</span>, <span class='cmd-accent'>clear</span>",
+      roblox: "[Roblox] Bezig met 'Frontline Empires': Hex-capture logic werkt, nu tank-turret rotatie fixen in LuaU.",
+      bss: "[Python] BSS Macro v1.8 draait stabiel. Gemiddelde opbrengst: ~85B honey/uur in Pine Tree Forest.",
+      blender: "[Blender] Laatst gemodelleerd: Medium Tank (680 tris) + Modulaire Loopgraaf set.",
+      status: "[Systeem] CPU: 34% | Roblox Studio: Open | VS Code: Open | Blender: Minimized.",
+      koffie: () => {
+        coffees++;
+        document.getElementById('coffeeCount').textContent = coffees;
+        return `[Energie] +1 kop koffie ingeschonken! Totaal vandaag: ${coffees}. Productiviteit +15%.`;
+      }
+    };
+
+    function runCmd(raw) {
+      const cmd = raw.trim().toLowerCase();
+      if (!cmd) return;
+
+      addTermLine(`<span class="cmd-prompt">$</span> ${escapeHtml(raw)}`);
+
+      if (cmd === 'clear') {
+        termBody.innerHTML = '';
+        return;
+      }
+
+      if (commands[cmd]) {
+        const res = typeof commands[cmd] === 'function' ? commands[cmd]() : commands[cmd];
+        addTermLine(res);
+      } else {
+        addTermLine(`<span class="cmd-warn">Onbekend commando: '${escapeHtml(cmd)}'. Typ 'help'.</span>`);
+      }
+      termBody.scrollTop = termBody.scrollHeight;
+    }
+
+    function addTermLine(html) {
+      const div = document.createElement('div');
+      div.className = 'terminal-line';
+      div.innerHTML = html;
+      termBody.appendChild(div);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    termInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        runCmd(termInput.value);
+        termInput.value = '';
+      }
+    });
+
+    /* =========================
+       ROBLOX CIV x COH MINI-SIM
+    ========================= */
+    const eras = [
+      { name: "Oudheid", unit: "🛡️", atk: 1 },
+      { name: "WO2", unit: "🪖", atk: 2 },
+      { name: "Modern", unit: "🚜", atk: 3 }
+    ];
+    let currentEra = 1;
+    let manpower = 120;
+    let fuel = 60;
+    let tiles = [];
+
+    function resetRts() {
+      manpower = 120;
+      fuel = 60;
+      tiles = Array.from({ length: 15 }, (_, i) => ({
+        id: i,
+        owner: i < 2 ? 'player' : (i > 11 ? 'enemy' : 'neutral'),
+        cover: [3, 6, 8, 10, 13].includes(i),
+        fuelNode: [4, 7, 11].includes(i)
+      }));
+      renderRts();
+      logRts("[LuaU] Nieuwe match gestart. Verover sectoren voor meer grondstoffen!");
+    }
+
+    function upgradeEra() {
+      if (currentEra >= eras.length - 1) {
+        currentEra = 0;
+      } else {
+        if (fuel < 40) {
+          logRts("[Tech] Niet genoeg brandstof (40 nodig) om naar het volgende tijdperk te gaan!");
+          return;
+        }
+        fuel -= 40;
+        currentEra++;
+      }
+      document.getElementById('eraName').textContent = eras[currentEra].name;
+      logRts(`[Civilization Tech] Geüpgraded naar tijdperk: ${eras[currentEra].name}!`);
+      renderRts();
+    }
+
+    function clickTile(idx) {
+      const t = tiles[idx];
+      if (t.owner === 'player') {
+        manpower += 15;
+        if (t.fuelNode) fuel += 15;
+        logRts(`[Economie] Sector #${idx+1} geïnspecteerd (+15 Mankracht${t.fuelNode ? ', +15 Brandstof' : ''}).`);
+      } else {
+        const cost = t.owner === 'enemy' ? 35 : 20;
+        if (manpower < cost) {
+          logRts(`[Squad] Te weinig mankracht! Nodig: ${cost}. Klik op je eigen sectoren om te verzamelen.`);
+          return;
+        }
+        manpower -= cost;
+        if (t.owner === 'enemy' && t.cover) {
+          logRts(`[CoH Tactiek] Vijand zat in dekking! Zwaar vuurgevecht... Sector #${idx+1} veroverd!`);
+        } else {
+          logRts(`[Squad] Sector #${idx+1} succesvol ingenomen met ${eras[currentEra].name}-troepen!`);
+        }
+        t.owner = 'player';
+        if (t.fuelNode) fuel += 25;
+      }
+      renderRts();
+    }
+
+    function renderRts() {
+      const board = document.getElementById('rtsBoard');
+      board.innerHTML = '';
+      let ownedCount = 0;
+
+      tiles.forEach((t, i) => {
+        if (t.owner === 'player') ownedCount++;
+        const el = document.createElement('div');
+        el.className = 'hex-tile' +
+          (t.owner === 'player' ? ' owned' : '') +
+          (t.owner === 'enemy' ? ' enemy' : '') +
+          (t.cover ? ' cover' : '');
+        el.onclick = () => clickTile(i);
+
+        let icon = t.fuelNode ? '⛽' : '🌾';
+        if (t.owner === 'player') icon = eras[currentEra].unit;
+        if (t.owner === 'enemy') icon = '🚩';
+
+        el.innerHTML = `<span>${icon}</span><span class="hex-label">${t.cover ? 'Cover' : 'Open'}</span>`;
+        board.appendChild(el);
+      });
+
+      document.getElementById('resManpower').textContent = manpower;
+      document.getElementById('resFuel').textContent = fuel;
+      document.getElementById('resSectors').textContent = `${ownedCount}/15`;
+    }
+
+    function logRts(msg) {
+      const box = document.getElementById('rtsLog');
+      box.innerHTML += `<div>${msg}</div>`;
+      box.scrollTop = box.scrollHeight;
+    }
+
+    resetRts();
+
+    /* =========================
+       PYTHON BSS MACRO SIMULATOR
+    ========================= */
+    let macroRunning = false;
+    let macroTimer = null;
+    let totalHoney = 0;
+
+    function toggleMacro() {
+      macroRunning = !macroRunning;
+      const btn = document.getElementById('macroToggleBtn');
+      if (macroRunning) {
+        btn.textContent = '⏹ Stop Macro';
+        btn.style.background = 'var(--danger)';
+        btn.style.borderColor = 'var(--danger)';
+        logMacro(`[Python] Macro gestart op ${document.getElementById('fieldSelect').value} (${document.getElementById('patternSelect').value})`);
+        macroStep();
+        macroTimer = setInterval(macroStep, 1100);
+      } else {
+        btn.textContent = '▶ Start Macro';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        clearInterval(macroTimer);
+        document.getElementById('fieldOverlay').textContent = 'Status: Gestopt';
+        logMacro('[Python] Macro gepauzeerd door gebruiker.');
+      }
+    }
+
+    function updateFieldName() {
+      if (macroRunning) {
+        logMacro(`[Pathing] Navigeren naar ${document.getElementById('fieldSelect').value}...`);
+      }
+    }
+
+    function macroStep() {
+      const bee = document.getElementById('beeBot');
+      const field = document.getElementById('beeField');
+      const maxX = field.clientWidth - 40;
+      const maxY = field.clientHeight - 40;
+      const rx = Math.max(10, Math.floor(Math.random() * maxX));
+      const ry = Math.max(10, Math.floor(Math.random() * maxY));
+
+      bee.style.left = rx + 'px';
+      bee.style.top = ry + 'px';
+
+      const scanTokens = document.getElementById('chkTokens').checked;
+      const autoConvert = document.getElementById('chkConvert').checked;
+      const rate = (Math.random() * 14 + (scanTokens ? 18 : 8)).toFixed(1);
+      totalHoney += parseFloat(rate);
+
+      document.getElementById('fieldOverlay').textContent = `Farming • ${rate}M Honey/sec`;
+
+      const events = [
+        `[OpenCV] Precisie-token opgepakt (+Boost)`,
+        `[Pattern] Uitvoeren ${document.getElementById('patternSelect').value}...`,
+        scanTokens ? `[cv2] Inspiring/Haste token herkend (98.4% match)` : `[Input] Standaard loop-cyclus`,
+        autoConvert && Math.random() > 0.72 ? `[Hive] Rugzak vol -> Terug naar hive voor Auto-Convert!` : `[Collector] Pollen verzamelen...`
+      ];
+      const pick = events[Math.floor(Math.random() * events.length)];
+      logMacro(pick);
+    }
+
+    function logMacro(msg) {
+      const box = document.getElementById('macroLog');
+      box.innerHTML += `<div>${msg}</div>`;
+      if (box.children.length > 40) box.removeChild(box.firstChild);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    /* =========================
+       INTERACTIEVE BLENDER 3D CANVAS
+    ========================= */
+    const canvas = document.getElementById('blenderCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let rotX = 0.45;
+    let rotY = 0.6;
+    let autoSpin = true;
+    let shadingMode = 'solid'; // 'wire' or 'solid'
+    let currentModelKey = 'tank';
+    let dragging = false;
+    let lastX = 0, lastY = 0;
+
+    // 3D Modellen (Vertices & Faces)
+    const models = {
+      tank: {
+        verts: [
+          // Hull
+          [-1.3, 0.3, -0.8], [1.3, 0.3, -0.8], [1.3, 0.3, 0.8], [-1.3, 0.3, 0.8],
+          [-1.1, -0.25, -0.75], [1.2, -0.25, -0.75], [1.2, -0.25, 0.75], [-1.1, -0.25, 0.75],
+          // Turret
+          [-0.55, -0.25, -0.45], [0.55, -0.25, -0.45], [0.55, -0.25, 0.45], [-0.55, -0.25, 0.45],
+          [-0.4, -0.7, -0.35], [0.4, -0.7, -0.35], [0.4, -0.7, 0.35], [-0.4, -0.7, 0.35],
+          // Barrel tip
+          [1.6, -0.52, -0.07], [1.6, -0.52, 0.07], [1.6, -0.42, 0.07], [1.6, -0.42, -0.07]
+        ],
+        faces: [
+          [0,1,2,3], [4,5,6,7], [0,1,5,4], [1,2,6,5], [2,3,7,6], [3,0,4,7],
+          [8,9,10,11], [12,13,14,15], [8,9,13,12], [9,10,14,13], [10,11,15,14], [11,8,12,15],
+          [13,16,17,14], [16,17,18,19]
+        ],
+        stats: "20 Verts | 14 Faces (Low-Poly)"
+      },
+      hex: {
+        verts: (() => {
+          const v = [];
+          for (let i = 0; i < 6; i++) {
+            const a = (Math.PI / 3) * i;
+            v.push([Math.cos(a) * 1.25, 0.35, Math.sin(a) * 1.25]);
+            v.push([Math.cos(a) * 1.25, -0.05, Math.sin(a) * 1.25]);
+          }
+          // Bunker top
+          for (let i = 0; i < 6; i++) {
+            const a = (Math.PI / 3) * i;
+            v.push([Math.cos(a) * 0.65, -0.5, Math.sin(a) * 0.65]);
+          }
+          return v;
+        })(),
+        faces: (() => {
+          const f = [[0,2,4,6,8,10], [1,3,5,7,9,11], [12,13,14,15,16,17]];
+          for (let i = 0; i < 6; i++) {
+            const n = (i + 1) % 6;
+            f.push([i*2, n*2, n*2+1, i*2+1]);
+            f.push([i*2+1, n*2+1, 12+n, 12+i]);
+          }
+          return f;
+        })(),
+        stats: "18 Verts | 15 Faces (Hex Tile)"
+      },
+      crystal: {
+        verts: [
+          [0, -1.25, 0],
+          [0.85, 0, 0], [0, 0, 0.85], [-0.85, 0, 0], [0, 0, -0.85],
+          [0, 1.25, 0]
+        ],
+        faces: [
+          [0,1,2], [0,2,3], [0,3,4], [0,4,1],
+          [5,2,1], [5,3,2], [5,4,3], [5,1,4]
+        ],
+        stats: "6 Verts | 8 Faces (Honeydrop)"
+      }
+    };
+
+    function setModel(key) {
+      currentModelKey = key;
+      document.getElementById('polyStats').textContent = models[key].stats;
+    }
+
+    function setShading(mode) {
+      shadingMode = mode;
+    }
+
+    function toggleSpin() {
+      autoSpin = !autoSpin;
+      document.getElementById('spinBtn').textContent = autoSpin ? '⏸ Auto-Spin' : '▶ Auto-Spin';
+    }
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = 310;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    canvas.addEventListener('mousedown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+    window.addEventListener('mouseup', () => dragging = false);
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      rotY += (e.clientX - lastX) * 0.01;
+      rotX += (e.clientY - lastY) * 0.01;
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    canvas.addEventListener('touchstart', e => {
+      dragging = true;
+      lastX = e.touches[0].clientX;
+      lastY = e.touches[0].clientY;
+    }, { passive: true });
+    window.addEventListener('touchend', () => dragging = false);
+    window.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      rotY += (e.touches[0].clientX - lastX) * 0.01;
+      rotX += (e.touches[0].clientY - lastY) * 0.01;
+      lastX = e.touches[0].clientX;
+      lastY = e.touches[0].clientY;
+    }, { passive: true });
+
+    function project(v) {
+      let [x, y, z] = v;
+      // Rotate Y
+      let cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+      let x1 = x * cosY - z * sinY;
+      let z1 = z * cosY + x * sinY;
+      // Rotate X
+      let cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+      let y2 = y * cosX - z1 * sinX;
+      let z2 = z1 * cosX + y * sinX;
+
+      const scale = 185 / (z2 + 4.2);
+      return {
+        x: canvas.width / 2 + x1 * scale,
+        y: canvas.height / 2 + y2 * scale,
+        z: z2
+      };
+    }
+
+    function drawBlender() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Blender floor grid
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 1;
+      for (let i = -4; i <= 4; i++) {
+        const p1 = project([i * 0.6, 0.5, -2.4]);
+        const p2 = project([i * 0.6, 0.5, 2.4]);
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+
+        const p3 = project([-2.4, 0.5, i * 0.6]);
+        const p4 = project([2.4, 0.5, i * 0.6]);
+        ctx.beginPath(); ctx.moveTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y); ctx.stroke();
+      }
+
+      if (autoSpin && !dragging) rotY += 0.008;
+
+      const model = models[currentModelKey];
+      const projected = model.verts.map(project);
+
+      // Painter's algorithm sort
+      const sortedFaces = model.faces.map(face => {
+        const avgZ = face.reduce((s, idx) => s + projected[idx].z, 0) / face.length;
+        return { face, avgZ };
+      }).sort((a, b) => b.avgZ - a.avgZ);
+
+      const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#38bdf8';
+
+      sortedFaces.forEach(({ face }, idx) => {
+        ctx.beginPath();
+        face.forEach((vIdx, i) => {
+          const p = projected[vIdx];
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        });
+        ctx.closePath();
+
+        if (shadingMode === 'solid') {
+          const shade = 28 + ((idx * 17) % 35);
+          ctx.fillStyle = currentModelKey === 'crystal'
+            ? 'rgba(250, 204, 21, 0.45)'
+            : `rgba(${shade + 25}, ${shade + 35}, ${shade + 50}, 0.85)`;
+          ctx.fill();
+          ctx.strokeStyle = accentColor;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        } else {
+          ctx.strokeStyle = accentColor;
+          ctx.lineWidth = 1.3;
+          ctx.stroke();
+        }
+      });
+
+      requestAnimationFrame(drawBlender);
+    }
+
+    setModel('tank');
+    drawBlender();
+  </script>
+</body>
+</html>
