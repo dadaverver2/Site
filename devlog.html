@@ -3,289 +3,325 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Devlog & Roadmap // dadaverver2</title>
+  <title>dadaverver2 — devlog</title>
   <style>
     :root {
-      --bg: #0d1117;
-      --bg-card: #161b22;
-      --bg-card-hover: #1c222b;
-      --border: #30363d;
-      --text: #e6edf3;
-      --text-muted: #8b949e;
-      --accent: #38bdf8;
-      --accent-glow: rgba(56, 189, 248, 0.25);
-      --success: #3fb950;
-      --warning: #d29922;
-      --danger: #f85149;
-      --font-mono: 'Fira Code', 'Cascadia Code', Consolas, monospace;
-      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --bg: #111113;
+      --surface: #18181b;
+      --surface-alt: #1f1f24;
+      --border: #2c2c33;
+      --border-strong: #44444e;
+      --text: #ededeb;
+      --muted: #8e8e99;
+      --accent: #ff5500;
+      --ok: #2ea043;
+      --warn: #d29922;
+      --grid-dot: rgba(255, 255, 255, 0.06);
+      --mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', Menlo, Consolas, monospace;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
-    [data-theme="blender"] {
-      --accent: #ea7600;
-      --accent-glow: rgba(234, 118, 0, 0.25);
-    }
-
-    [data-theme="bss"] {
-      --accent: #facc15;
-      --accent-glow: rgba(250, 204, 21, 0.25);
+    [data-mode="paper"] {
+      --bg: #f3f2ed;
+      --surface: #eae8e1;
+      --surface-alt: #e2dfd6;
+      --border: #cbc8be;
+      --border-strong: #9e9b90;
+      --text: #161615;
+      --muted: #5c5b55;
+      --accent: #d93f00;
+      --ok: #1a7f37;
+      --warn: #9a6700;
+      --grid-dot: rgba(0, 0, 0, 0.08);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: var(--font-sans);
+      font-family: var(--sans);
       background-color: var(--bg);
+      background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
+      background-size: 22px 22px;
       color: var(--text);
-      line-height: 1.6;
-      background-image: radial-gradient(circle at 80% 10%, var(--accent-glow), transparent 35%);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    header {
+    /* TOP STUDIO BAR */
+    .topbar {
       position: sticky;
       top: 0;
       z-index: 100;
-      backdrop-filter: blur(12px);
-      background: rgba(13, 17, 23, 0.85);
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
     }
 
-    .nav-container {
-      max-width: 1180px;
+    .topbar-inner {
+      max-width: 1220px;
       margin: 0 auto;
-      padding: 0.9rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
+      padding: 0 1.25rem;
+      min-height: 52px;
       gap: 1rem;
-    }
-
-    .logo {
-      font-family: var(--font-mono);
-      font-weight: 700;
-      font-size: 1.15rem;
-      color: var(--text);
-      text-decoration: none;
-    }
-    .logo span { color: var(--accent); }
-
-    nav {
-      display: flex;
-      gap: 1.25rem;
-      align-items: center;
       flex-wrap: wrap;
     }
 
-    nav a {
-      color: var(--text-muted);
-      text-decoration: none;
+    .brand {
+      font-family: var(--mono);
       font-size: 0.92rem;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-    nav a:hover, nav a.active { color: var(--accent); }
-
-    .theme-switcher {
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--text);
       display: flex;
-      gap: 0.4rem;
-      background: var(--bg-card);
-      padding: 0.25rem 0.4rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
+      align-items: center;
+      gap: 0.55rem;
+      letter-spacing: -0.02em;
     }
 
-    .theme-btn {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 2px solid transparent;
+    .brand-marker {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.35rem 0.65rem;
+      border: 1px solid transparent;
+      transition: all 0.12s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--surface);
+    }
+
+    .nav-links a.nav-ext {
+      color: var(--accent);
+    }
+
+    .nav-links a.active {
+      color: var(--text);
+      border-color: var(--accent);
+      background: var(--surface);
+    }
+
+    .mode-btn {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.7rem;
       cursor: pointer;
     }
-    .theme-btn.active { border-color: #fff; }
-    .theme-blue { background: #38bdf8; }
-    .theme-orange { background: #ea7600; }
-    .theme-gold { background: #facc15; }
+    .mode-btn:hover { border-color: var(--accent); }
 
-    main {
-      max-width: 1180px;
+    /* MAIN WRAP */
+    .wrap {
+      max-width: 1220px;
       width: 100%;
       margin: 0 auto;
-      padding: 2.5rem 1.5rem 4rem;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      background: var(--bg);
       flex: 1;
     }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      padding: 0.25rem 0.7rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border);
-      color: var(--accent);
-      margin-bottom: 0.75rem;
+    /* PAGE HEADER */
+    .page-head {
+      padding: 2.5rem 2rem 1.75rem;
+      border-bottom: 1px solid var(--border);
     }
+
+    .meta-strip {
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-strip span strong { color: var(--accent); font-weight: 600; }
 
     h1 {
-      font-size: clamp(1.9rem, 4vw, 2.8rem);
-      margin-bottom: 0.5rem;
+      font-size: clamp(2rem, 4vw, 2.9rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.85rem;
     }
 
-    h2 {
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
+    .page-copy {
+      color: var(--muted);
+      max-width: 64ch;
+      font-size: 0.98rem;
+      margin-bottom: 1.5rem;
     }
 
-    .lead {
-      color: var(--text-muted);
-      max-width: 65ch;
-      margin-bottom: 2rem;
-    }
-
-    /* Filter Knoppen */
+    /* FILTER TOOLBAR */
     .filter-bar {
       display: flex;
-      gap: 0.6rem;
       flex-wrap: wrap;
-      margin-bottom: 2rem;
+      gap: 0.35rem;
     }
 
     .filter-btn {
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      padding: 0.45rem 0.85rem;
       border: 1px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-muted);
+      background: var(--surface);
+      color: var(--muted);
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.12s;
     }
 
     .filter-btn:hover {
-      border-color: var(--accent);
       color: var(--text);
+      border-color: var(--border-strong);
     }
 
     .filter-btn.active {
       background: var(--accent);
-      color: #0d1117;
+      color: #fff;
       border-color: var(--accent);
-      font-weight: 700;
+      font-weight: 600;
     }
 
-    /* Kanban Roadmap */
+    /* KANBAN 3-COLUMN GRID */
     .kanban-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      margin-bottom: 4rem;
+      border-bottom: 1px solid var(--border);
     }
 
     @media (max-width: 900px) {
       .kanban-grid { grid-template-columns: 1fr; }
+      .kanban-col { border-right: none !important; border-bottom: 1px solid var(--border); }
+      .kanban-col:last-child { border-bottom: none; }
+      .bottom-split { grid-template-columns: 1fr !important; }
+      .panel-right { border-left: none !important; border-top: 1px solid var(--border); }
     }
 
     .kanban-col {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.25rem;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
     }
+    .kanban-col:last-child { border-right: none; }
 
-    .col-header {
+    .col-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 0.85rem;
-      margin-bottom: 1rem;
+      padding: 0.85rem 1.25rem;
       border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      font-family: var(--mono);
+      font-size: 0.78rem;
       font-weight: 700;
     }
 
     .col-count {
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      background: #0d1117;
-      padding: 0.15rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-    }
-
-    .task-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-    }
-
-    .task-card {
-      background: #0d1117;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.95rem;
-      transition: transform 0.15s, border-color 0.15s;
-    }
-
-    .task-card:hover {
-      transform: translateY(-2px);
-      border-color: var(--accent);
-    }
-
-    .task-cat {
-      display: inline-block;
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 5px;
-      margin-bottom: 0.45rem;
-      background: rgba(255, 255, 255, 0.05);
       color: var(--accent);
     }
 
+    .task-list {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      flex: 1;
+    }
+
+    .task-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.95rem 1rem;
+      transition: border-color 0.12s;
+    }
+
+    .task-card:hover {
+      border-color: var(--accent);
+    }
+
+    .task-tag {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+
     .task-title {
-      font-weight: 600;
-      font-size: 0.96rem;
-      margin-bottom: 0.25rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
     }
 
     .task-desc {
-      font-size: 0.83rem;
-      color: var(--text-muted);
+      font-size: 0.84rem;
+      color: var(--muted);
     }
 
-    /* Onderste 2 kolommen: Patch Notes + Poll */
-    .bottom-grid {
+    /* BOTTOM SPLIT: CHANGELOG + POLL */
+    .bottom-split {
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 2rem;
-      align-items: start;
+      grid-template-columns: 1.15fr 0.85fr;
+      border-bottom: 1px solid var(--border);
     }
 
-    @media (max-width: 900px) {
-      .bottom-grid { grid-template-columns: 1fr; }
+    .panel-left {
+      padding: 2rem;
     }
 
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.5rem;
+    .panel-right {
+      border-left: 1px solid var(--border);
+      padding: 2rem;
+      background: var(--surface);
     }
 
+    .sub-label {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.35rem;
+      display: block;
+    }
+
+    /* TIMELINE */
     .timeline {
+      border-left: 1px solid var(--border-strong);
+      padding-left: 1.35rem;
+      margin-left: 0.25rem;
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
-      border-left: 2px solid var(--border);
-      padding-left: 1.25rem;
-      margin-left: 0.4rem;
+      gap: 1.4rem;
     }
 
     .log-entry {
@@ -295,219 +331,259 @@
     .log-entry::before {
       content: "";
       position: absolute;
-      left: -1.65rem;
-      top: 0.35rem;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
+      left: -1.63rem;
+      top: 0.38rem;
+      width: 8px;
+      height: 8px;
       background: var(--accent);
-      border: 2px solid var(--bg);
     }
 
     .log-meta {
-      font-family: var(--font-mono);
-      font-size: 0.76rem;
+      font-family: var(--mono);
+      font-size: 0.74rem;
       color: var(--accent);
       margin-bottom: 0.2rem;
     }
 
     .log-entry h3 {
-      font-size: 1.05rem;
+      font-size: 1rem;
       margin-bottom: 0.25rem;
     }
 
     .log-entry p {
       font-size: 0.88rem;
-      color: var(--text-muted);
+      color: var(--muted);
     }
 
-    /* Poll */
-    .poll-option {
-      background: #0d1117;
+    /* POLL */
+    .poll-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .poll-item {
+      background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 10px;
       padding: 0.85rem 1rem;
-      margin-bottom: 0.75rem;
       cursor: pointer;
-      transition: border-color 0.15s;
+      transition: border-color 0.12s;
     }
 
-    .poll-option:hover { border-color: var(--accent); }
-    .poll-option.voted { border-color: var(--success); }
+    .poll-item:hover { border-color: var(--accent); }
+    .poll-item.voted { border-color: var(--ok); }
 
     .poll-top {
       display: flex;
       justify-content: space-between;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 0.45rem;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+      gap: 0.5rem;
     }
 
-    .poll-bar {
-      height: 7px;
-      background: var(--bg-card);
-      border-radius: 999px;
-      overflow: hidden;
+    .poll-pct {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .poll-track {
+      height: 6px;
+      background: var(--surface-alt);
+      width: 100%;
     }
 
     .poll-fill {
       height: 100%;
       background: var(--accent);
-      border-radius: 999px;
-      transition: width 0.35s ease;
+      transition: width 0.3s ease;
     }
 
+    /* TOAST */
     .toast {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: var(--bg-card);
+      background: var(--bg);
       border: 1px solid var(--accent);
       color: var(--text);
-      padding: 0.75rem 1.1rem;
-      border-radius: 10px;
-      font-size: 0.88rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      padding: 0.65rem 1rem;
       transform: translateY(100px);
       opacity: 0;
-      transition: all 0.25s ease;
+      transition: all 0.2s ease;
+      z-index: 999;
     }
     .toast.show { transform: translateY(0); opacity: 1; }
 
+    /* FOOTER */
     footer {
-      border-top: 1px solid var(--border);
-      padding: 1.5rem;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.88rem;
+      max-width: 1220px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
     }
+    footer a { color: var(--text); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="nav-container">
-      <a href="index.html" class="logo">&lt;<span>dadaverver2</span> /&gt;</a>
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="devlog.html" class="active">Devlog</a>
-        <a href="contact.html">Contact</a>
-        <div class="theme-switcher" title="Kies accentkleur">
-          <button class="theme-btn theme-blue active" onclick="setTheme('default', this)"></button>
-          <button class="theme-btn theme-orange" onclick="setTheme('blender', this)"></button>
-          <button class="theme-btn theme-gold" onclick="setTheme('bss', this)"></button>
-        </div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-marker"></span>
+        dadaverver2
+      </a>
+      <nav class="nav-links">
+        <a href="index.html#roblox">01.roblox</a>
+        <a href="index.html#python">02.bss_macro</a>
+        <a href="index.html#blender">03.blender</a>
+        <a href="index.html#extra">04.lab</a>
+        <a href="devlog.html" class="active">devlog.html</a>
+        <a href="contact.html" class="nav-ext">contact.html</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
       </nav>
     </div>
   </header>
 
-  <main>
-    <div class="badge">🛠️ Live Roadmap • dadaverver2</div>
-    <h1>Devlog & Roadmap</h1>
-    <p class="lead">
-      Hier houd ik bij waar ik mee bezig ben voor mijn Roblox-game, de Python BSS macro en mijn Blender 3D-projecten. Filter op een project of stem hieronder op de volgende update!
-    </p>
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>HANDLE: <strong>dadaverver2</strong></span>
+        <span>ENDPOINT: <strong>/devlog</strong></span>
+        <span>TRACKING: <strong>ROBLOX / PYTHON / BLENDER</strong></span>
+      </div>
+      <h1>Devlog & Roadmap.</h1>
+      <p class="page-copy">
+        Overzicht van geplande features, actieve taken en recente updates. Filter per project of breng je stem uit op de volgende prioriteit.
+      </p>
 
-    <!-- FILTERS -->
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterProject('all', this)">Alle projecten</button>
-      <button class="filter-btn" onclick="filterProject('roblox', this)">🎮 Roblox RTS</button>
-      <button class="filter-btn" onclick="filterProject('bss', this)">🐝 Python BSS Macro</button>
-      <button class="filter-btn" onclick="filterProject('blender', this)">🧊 Blender 3D</button>
-    </div>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all', this)">ALL</button>
+        <button class="filter-btn" onclick="setFilter('roblox', this)">01.ROBLOX_RTS</button>
+        <button class="filter-btn" onclick="setFilter('bss', this)">02.BSS_MACRO</button>
+        <button class="filter-btn" onclick="setFilter('blender', this)">03.BLENDER_3D</button>
+      </div>
+    </section>
 
-    <!-- KANBAN ROADMAP -->
-    <div class="kanban-grid">
+    <!-- KANBAN BOARD -->
+    <section class="kanban-grid">
       <div class="kanban-col">
-        <div class="col-header">
-          <span>📋 To-Do / Ideeën</span>
+        <div class="col-head">
+          <span>[01] BACKLOG</span>
           <span class="col-count" id="count-todo">0</span>
         </div>
         <div class="task-list" id="col-todo"></div>
       </div>
 
       <div class="kanban-col">
-        <div class="col-header">
-          <span>⚡ Mee bezig</span>
+        <div class="col-head">
+          <span>[02] IN_PROGRESS</span>
           <span class="col-count" id="count-doing">0</span>
         </div>
         <div class="task-list" id="col-doing"></div>
       </div>
 
       <div class="kanban-col">
-        <div class="col-header">
-          <span>✅ Klaar</span>
+        <div class="col-head">
+          <span>[03] DONE</span>
           <span class="col-count" id="count-done">0</span>
         </div>
         <div class="task-list" id="col-done"></div>
       </div>
-    </div>
+    </section>
 
-    <!-- PATCH NOTES + POLL -->
-    <div class="bottom-grid">
-      <div class="card">
-        <h2>📜 Recente Patch Notes</h2>
+    <!-- CHANGELOG + PRIORITY POLL -->
+    <section class="bottom-split">
+      <div class="panel-left">
+        <span class="sub-label">// CHANGELOG_TIMELINE</span>
         <div class="timeline" id="timeline"></div>
       </div>
 
-      <div class="card">
-        <h2>🗳️ Waar moet dadaverver2 eerst aan werken?</h2>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.1rem;">
-          Klik op een optie om te stemmen (wordt lokaal opgeslagen).
+      <div class="panel-right">
+        <span class="sub-label">// PRIORITY_POLL</span>
+        <p style="font-size:0.88rem; color:var(--muted); margin-bottom:1.15rem;">
+          Waar moet ik als volgende aan werken? Klik op een optie om te stemmen.
         </p>
-        <div id="pollContainer"></div>
+        <div class="poll-list" id="pollList"></div>
       </div>
-    </div>
+    </section>
   </main>
 
   <footer>
-    Gemaakt door <strong style="color:var(--accent)">dadaverver2</strong> • <a href="index.html" style="color: var(--text-muted);">Terug naar Home</a>
+    <span>dadaverver2 // /devlog</span>
+    <div style="display:flex; gap:1.25rem;">
+      <a href="index.html">index.html</a>
+      <a href="contact.html">contact.html</a>
+    </div>
   </footer>
 
   <div class="toast" id="toast"></div>
 
   <script>
+    function toggleMode() {
+      const isPaper = document.documentElement.getAttribute('data-mode') === 'paper';
+      if (isPaper) {
+        document.documentElement.removeAttribute('data-mode');
+        document.getElementById('modeToggle').textContent = 'mode: dark';
+      } else {
+        document.documentElement.setAttribute('data-mode', 'paper');
+        document.getElementById('modeToggle').textContent = 'mode: paper';
+      }
+    }
+
     const tasks = [
-      { col: "todo", cat: "roblox", label: "🎮 Roblox RTS", title: "Artillerie & Mist (Fog of War)", desc: "Eenheden kunnen vijanden pas zien als een scout of radar in de buurt is." },
-      { col: "todo", cat: "bss", label: "🐝 BSS Macro", title: "Auto-Planter Timer", desc: "Automatisch planters oogsten en opnieuw plaatsen voor 100% Nectar." },
-      { col: "todo", cat: "blender", label: "🧊 Blender 3D", title: "Modulaire Haven & Schepen", desc: "Low-poly haven gebouwen voor toekomstige zeeslagen." },
+      { col: "todo", cat: "roblox", tag: "[ROBLOX_RTS]", title: "Fog of War & Artillerie", desc: "Vijandelijke squads blijven verborgen buiten zichtbereik van scouts of radars." },
+      { col: "todo", cat: "bss", tag: "[BSS_MACRO]", title: "Auto-Planter Rotatie", desc: "Planters automatisch oogsten en herplaatsen om Nectar-buffs op 100% te houden." },
+      { col: "todo", cat: "blender", tag: "[BLENDER_3D]", title: "Haven & Schepen Pack", desc: "Low-poly transportschepen en kustverdediging voor toekomstige kaarten." },
 
-      { col: "doing", cat: "roblox", label: "🎮 Roblox RTS", title: "Squad Suppression Systeem", desc: "Soldaten kruipen sneller naar dekking onder zwaar mitrailleurvuur." },
-      { col: "doing", cat: "bss", label: "🐝 BSS Macro", title: "OpenCV Token Herkenning v2", desc: "Snellere detectie van Haste, Focus en Precision tokens zonder CPU-pieken." },
-      { col: "doing", cat: "blender", label: "🧊 Blender 3D", title: "Medium Tank Turret Rig", desc: "Losse koepel exporteren naar .fbx zodat hij in Roblox kan draaien." },
+      { col: "doing", cat: "roblox", tag: "[ROBLOX_RTS]", title: "Suppression & Cover Logic", desc: "Squads onder zwaar vuur verliezen bewegingssnelheid en zoeken automatisch dekking." },
+      { col: "doing", cat: "bss", tag: "[BSS_MACRO]", title: "OpenCV Token Scan v2", desc: "Snellere template matching voor Focus-, Haste- en Precision-tokens met minder CPU-gebruik." },
+      { col: "doing", cat: "blender", tag: "[BLENDER_3D]", title: "Medium Tank Turret Origin", desc: "Losse koepel exporteren met gecentreerd draaipunt voor Roblox CFrame-rotatie." },
 
-      { col: "done", cat: "roblox", label: "🎮 Roblox RTS", title: "Hex-Grid Sector Verovering", desc: "Sectoren geven nu live Mankracht en Brandstof per seconde." },
-      { col: "done", cat: "bss", label: "🐝 BSS Macro", title: "Discord Webhook Rapport", desc: "Stuurt elk uur een overzicht van Honey/uur en rugzak-conversies." },
-      { col: "done", cat: "blender", label: "🧊 Blender 3D", title: "Basis Terrein Tegels", desc: "Bos, gras, heuvel en loopgraaf hex-tegels geoptimaliseerd (<300 tris)." }
+      { col: "done", cat: "roblox", tag: "[ROBLOX_RTS]", title: "Sector Economie Systeem", desc: "Veroverde sectoren genereren continu Mankracht en Brandstof." },
+      { col: "done", cat: "bss", tag: "[BSS_MACRO]", title: "Discord Webhook Stats", desc: "Automatische uur-rapportage met honey/uur en aantal bag-conversies." },
+      { col: "done", cat: "blender", tag: "[BLENDER_3D]", title: "Hex Terrein Set v1", desc: "Bos-, loopgraaf- en brandstofdepot-tegels onder de 300 tris per mesh." }
     ];
 
     const logs = [
-      { cat: "roblox", date: "Update v0.4.2", title: "Tank-turret draait nu naar doelwit", desc: "CFrame-rotatie in LuaU gefixt zodat tanks netjes op vijandelijke squads richten tijdens het rijden." },
-      { cat: "bss", date: "Macro v1.8", title: "Betere drift-correctie in Pine Tree", desc: "Met mss + OpenCV checkt de macro nu elke 10 seconden of je nog midden in het veld staat." },
-      { cat: "blender", date: "Asset Pack #3", title: "5 nieuwe loopgraaf-variaties klaar", desc: "Geëxporteerd met vertex colors zodat er geen zware textures nodig zijn in Roblox." },
-      { cat: "roblox", date: "Update v0.4.0", title: "Tijdperk Tech Tree toegevoegd", desc: "Spelers kunnen nu Brandstof uitgeven om te upgraden van Oudheid naar WO2 en Modern." }
+      { cat: "roblox", meta: "ROBLOX // v0.4.2", title: "Tank-turret volgt nu vijandelijk doelwit", desc: "CFrame-rotatie in LuaU aangepast zodat de koepel soepel meedraait terwijl de romp rijdt." },
+      { cat: "bss", meta: "PYTHON // v1.8.0", title: "Drift-correctie in Pine Tree Forest", desc: "Via mss + OpenCV controleert het script elke 10s de randen van het veld en stuurt direct bij." },
+      { cat: "blender", meta: "BLENDER // PACK_03", title: "5 modulaire loopgraaf-tegels afgerond", desc: "Gebruik gemaakt van vertex colors zodat er geen losse textures geladen hoeven te worden." },
+      { cat: "roblox", meta: "ROBLOX // v0.4.0", title: "Tech Tree & Tijdperk-upgrades", desc: "Brandstof kan nu besteed worden om te upgraden van Oudheid naar WO2 en Modern." }
     ];
 
-    let currentFilter = 'all';
+    let activeFilter = 'all';
 
-    function filterProject(cat, btn) {
-      currentFilter = cat;
+    function setFilter(cat, btn) {
+      activeFilter = cat;
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
-      renderBoard();
-      renderLogs();
+      renderKanban();
+      renderTimeline();
     }
 
-    function renderBoard() {
-      const cols = { todo: [], doing: [], done: [] };
-      tasks.filter(t => currentFilter === 'all' || t.cat === currentFilter)
-           .forEach(t => cols[t.col].push(t));
+    function renderKanban() {
+      const grouped = { todo: [], doing: [], done: [] };
+      tasks.filter(t => activeFilter === 'all' || t.cat === activeFilter)
+           .forEach(t => grouped[t.col].push(t));
 
-      ['todo', 'doing', 'done'].forEach(key => {
-        const container = document.getElementById(`col-${key}`);
-        document.getElementById(`count-${key}`).textContent = cols[key].length;
-        container.innerHTML = cols[key].map(t => `
+      ['todo', 'doing', 'done'].forEach(col => {
+        document.getElementById(`count-${col}`).textContent = String(grouped[col].length).padStart(2, '0');
+        document.getElementById(`col-${col}`).innerHTML = grouped[col].map(t => `
           <div class="task-card">
-            <span class="task-cat">${t.label}</span>
+            <span class="task-tag">${t.tag}</span>
             <div class="task-title">${t.title}</div>
             <div class="task-desc">${t.desc}</div>
           </div>
@@ -515,73 +591,67 @@
       });
     }
 
-    function renderLogs() {
-      const filtered = logs.filter(l => currentFilter === 'all' || l.cat === currentFilter);
-      document.getElementById('timeline').innerHTML = filtered.map(l => `
+    function renderTimeline() {
+      const items = logs.filter(l => activeFilter === 'all' || l.cat === activeFilter);
+      document.getElementById('timeline').innerHTML = items.map(l => `
         <div class="log-entry">
-          <div class="log-meta">${l.date}</div>
+          <div class="log-meta">${l.meta}</div>
           <h3>${l.title}</h3>
           <p>${l.desc}</p>
         </div>
       `).join('');
     }
 
-    // Interactieve Poll
-    const defaultPoll = [
-      { id: 0, text: "🚢 Zeeslagen & Schepen (Roblox)", votes: 14 },
-      { id: 1, text: "🍓 Auto-Boost & Planters (BSS Macro)", votes: 19 },
-      { id: 2, text: "🚁 Helikopters & Luchtaanval (Blender 3D)", votes: 11 }
+    const basePoll = [
+      { id: 0, label: "[ROBLOX] Zeeslagen & Schepen", votes: 14 },
+      { id: 1, label: "[PYTHON] Auto-Planter & Nectar", votes: 19 },
+      { id: 2, label: "[BLENDER] Helikopters & Luchtaanval", votes: 11 }
     ];
 
-    let pollData = JSON.parse(localStorage.getItem('dadaverver2_poll')) || defaultPoll;
-    let userVotedId = localStorage.getItem('dadaverver2_voted');
+    let poll = JSON.parse(localStorage.getItem('dadaverver2_poll')) || basePoll;
+    let votedId = localStorage.getItem('dadaverver2_voted');
 
     function renderPoll() {
-      const total = pollData.reduce((sum, o) => sum + o.votes, 0);
-      document.getElementById('pollContainer').innerHTML = pollData.map(o => {
-        const pct = Math.round((o.votes / total) * 100);
-        const isVoted = String(o.id) === userVotedId;
+      const total = poll.reduce((sum, p) => sum + p.votes, 0);
+      document.getElementById('pollList').innerHTML = poll.map(p => {
+        const pct = Math.round((p.votes / total) * 100);
+        const isVoted = String(p.id) === votedId;
         return `
-          <div class="poll-option ${isVoted ? 'voted' : ''}" onclick="vote(${o.id})">
+          <div class="poll-item ${isVoted ? 'voted' : ''}" onclick="castVote(${p.id})">
             <div class="poll-top">
-              <span>${o.text} ${isVoted ? '✓' : ''}</span>
-              <span style="font-family:var(--font-mono); color:var(--accent)">${pct}%</span>
+              <span>${p.label} ${isVoted ? '[STEM]' : ''}</span>
+              <span class="poll-pct">${pct}%</span>
             </div>
-            <div class="poll-bar"><div class="poll-fill" style="width:${pct}%"></div></div>
+            <div class="poll-track">
+              <div class="poll-fill" style="width:${pct}%"></div>
+            </div>
           </div>
         `;
       }).join('');
     }
 
-    function vote(id) {
-      if (userVotedId !== null) {
-        showToast("Je hebt al gestemd! Bedankt voor je feedback.");
+    function castVote(id) {
+      if (votedId !== null) {
+        showToast("Je hebt al gestemd op deze poll.");
         return;
       }
-      pollData[id].votes++;
-      userVotedId = String(id);
-      localStorage.setItem('dadaverver2_poll', JSON.stringify(pollData));
-      localStorage.setItem('dadaverver2_voted', userVotedId);
+      poll[id].votes++;
+      votedId = String(id);
+      localStorage.setItem('dadaverver2_poll', JSON.stringify(poll));
+      localStorage.setItem('dadaverver2_voted', votedId);
       renderPoll();
-      showToast("Stem opgeslagen! 🎉");
-    }
-
-    function setTheme(theme, btn) {
-      if (theme === 'default') document.documentElement.removeAttribute('data-theme');
-      else document.documentElement.setAttribute('data-theme', theme);
-      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
+      showToast("Stem opgeslagen.");
     }
 
     function showToast(msg) {
       const t = document.getElementById('toast');
-      t.textContent = msg;
+      t.textContent = `[ok] ${msg}`;
       t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2800);
+      setTimeout(() => t.classList.remove('show'), 2600);
     }
 
-    renderBoard();
-    renderLogs();
+    renderKanban();
+    renderTimeline();
     renderPoll();
   </script>
 </body>

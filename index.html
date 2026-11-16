@@ -3,1459 +3,1353 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DevForge // Roblox RTS, Python BSS Macro & Blender 3D</title>
+  <title>dadaverver2 — index</title>
   <style>
     :root {
-      --bg: #0d1117;
-      --bg-card: #161b22;
-      --bg-card-hover: #1c222b;
-      --border: #30363d;
-      --text: #e6edf3;
-      --text-muted: #8b949e;
-      --accent: #38bdf8;
-      --accent-glow: rgba(56, 189, 248, 0.25);
-      --success: #3fb950;
-      --warning: #d29922;
-      --danger: #f85149;
-      --font-mono: 'Fira Code', 'Cascadia Code', Consolas, monospace;
-      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --bg: #111113;
+      --surface: #18181b;
+      --surface-alt: #1f1f24;
+      --border: #2c2c33;
+      --border-strong: #44444e;
+      --text: #ededeb;
+      --muted: #8e8e99;
+      --accent: #ff5500;
+      --accent-dim: rgba(255, 85, 0, 0.14);
+      --ok: #2ea043;
+      --warn: #d29922;
+      --hostile: #e5484d;
+      --grid-dot: rgba(255, 255, 255, 0.06);
+      --mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', Menlo, Consolas, monospace;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
-    [data-theme="blender"] {
-      --accent: #ea7600;
-      --accent-glow: rgba(234, 118, 0, 0.25);
+    [data-mode="paper"] {
+      --bg: #f3f2ed;
+      --surface: #eae8e1;
+      --surface-alt: #e2dfd6;
+      --border: #cbc8be;
+      --border-strong: #9e9b90;
+      --text: #161615;
+      --muted: #5c5b55;
+      --accent: #d93f00;
+      --accent-dim: rgba(217, 63, 0, 0.1);
+      --ok: #1a7f37;
+      --warn: #9a6700;
+      --hostile: #cf222e;
+      --grid-dot: rgba(0, 0, 0, 0.08);
     }
 
-    [data-theme="bss"] {
-      --accent: #facc15;
-      --accent-glow: rgba(250, 204, 21, 0.25);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: var(--font-sans);
+      font-family: var(--sans);
       background-color: var(--bg);
+      background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
+      background-size: 22px 22px;
       color: var(--text);
-      line-height: 1.6;
-      background-image: 
-        radial-gradient(circle at 15% 10%, var(--accent-glow), transparent 35%),
-        radial-gradient(circle at 85% 75%, rgba(63, 185, 80, 0.08), transparent 35%);
-      min-height: 100vh;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Header & Nav */
-    header {
+    /* TOP STUDIO BAR */
+    .topbar {
       position: sticky;
       top: 0;
       z-index: 100;
-      backdrop-filter: blur(12px);
-      background: rgba(13, 17, 23, 0.85);
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
     }
 
-    .nav-container {
-      max-width: 1180px;
+    .topbar-inner {
+      max-width: 1220px;
       margin: 0 auto;
-      padding: 0.9rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
+      padding: 0 1.25rem;
+      min-height: 52px;
       gap: 1rem;
-    }
-
-    .logo {
-      font-family: var(--font-mono);
-      font-weight: 700;
-      font-size: 1.15rem;
-      color: var(--text);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .logo span {
-      color: var(--accent);
-    }
-
-    nav {
-      display: flex;
-      gap: 1.25rem;
-      align-items: center;
       flex-wrap: wrap;
     }
 
-    nav a {
-      color: var(--text-muted);
-      text-decoration: none;
+    .brand {
+      font-family: var(--mono);
       font-size: 0.92rem;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-
-    nav a:hover {
-      color: var(--accent);
-    }
-
-    .theme-switcher {
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--text);
       display: flex;
-      gap: 0.4rem;
       align-items: center;
-      background: var(--bg-card);
-      padding: 0.25rem 0.4rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-    }
-
-    .theme-btn {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: transform 0.15s;
-    }
-
-    .theme-btn:hover { transform: scale(1.15); }
-    .theme-btn.active { border-color: #fff; }
-    .theme-blue { background: #38bdf8; }
-    .theme-orange { background: #ea7600; }
-    .theme-gold { background: #facc15; }
-
-    /* Layout */
-    main {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 5rem;
-    }
-
-    section {
-      margin-bottom: 5rem;
-    }
-
-    .section-header {
-      margin-bottom: 2rem;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      padding: 0.25rem 0.7rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border);
-      color: var(--accent);
-      margin-bottom: 0.75rem;
-    }
-
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--success);
-      border-radius: 50%;
-      animation: pulse 1.8s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.3); }
-    }
-
-    h1 {
-      font-size: clamp(2rem, 4.5vw, 3.3rem);
-      line-height: 1.15;
-      margin-bottom: 1rem;
+      gap: 0.55rem;
       letter-spacing: -0.02em;
     }
 
-    h2 {
-      font-size: clamp(1.5rem, 3vw, 2.1rem);
-      margin-bottom: 0.5rem;
+    .brand-marker {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
     }
 
-    h3 {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    p.lead {
-      color: var(--text-muted);
-      font-size: 1.08rem;
-      max-width: 65ch;
-    }
-
-    /* Hero Grid */
-    .hero {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 2.5rem;
-      align-items: center;
-      padding-top: 1.5rem;
-    }
-
-    @media (max-width: 900px) {
-      .hero, .project-grid {
-        grid-template-columns: 1fr !important;
-      }
-    }
-
-    .hero-stats {
+    .nav-links {
       display: flex;
-      gap: 1.5rem;
-      margin-top: 2rem;
+      align-items: center;
+      gap: 0.25rem;
       flex-wrap: wrap;
     }
 
-    .stat-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      padding: 0.85rem 1.1rem;
-      border-radius: 10px;
-      min-width: 130px;
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.35rem 0.65rem;
+      border: 1px solid transparent;
+      transition: all 0.12s;
     }
 
-    .stat-val {
-      font-family: var(--font-mono);
-      font-size: 1.35rem;
-      font-weight: 700;
+    .nav-links a:hover {
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--surface);
+    }
+
+    .nav-links a.nav-ext {
       color: var(--accent);
     }
 
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    /* Terminal Widget */
-    .terminal {
-      background: #090c10;
+    .mode-btn {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      background: var(--surface);
+      color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
+      padding: 0.35rem 0.7rem;
+      cursor: pointer;
     }
 
-    .terminal-bar {
-      background: #161b22;
-      padding: 0.6rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .mode-btn:hover { border-color: var(--accent); }
+
+    /* MAIN CONTAINER */
+    .wrap {
+      max-width: 1220px;
+      margin: 0 auto;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    /* HERO DOSSIER */
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
       border-bottom: 1px solid var(--border);
     }
 
-    .dots {
+    @media (max-width: 920px) {
+      .hero, .split-panel { grid-template-columns: 1fr !important; }
+      .hero-right { border-left: none !important; border-top: 1px solid var(--border); }
+      .panel-right { border-left: none !important; border-top: 1px solid var(--border); }
+    }
+
+    .hero-left {
+      padding: 3rem 2rem;
+    }
+
+    .meta-strip {
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 1.25rem;
       display: flex;
-      gap: 6px;
+      gap: 1.25rem;
+      flex-wrap: wrap;
     }
 
-    .dots span {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
+    .meta-strip span strong { color: var(--accent); font-weight: 600; }
+
+    h1 {
+      font-size: clamp(2.1rem, 4.4vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+      margin-bottom: 1.25rem;
     }
 
-    .dots span:nth-child(1) { background: #ff5f56; }
-    .dots span:nth-child(2) { background: #ffbd2e; }
-    .dots span:nth-child(3) { background: #27c93f; }
+    .hero-copy {
+      font-size: 1.02rem;
+      color: var(--muted);
+      max-width: 56ch;
+      margin-bottom: 2rem;
+    }
 
-    .terminal-body {
+    .hero-copy strong { color: var(--text); font-weight: 600; }
+
+    .spec-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .spec-cell {
+      padding: 0.85rem 1rem;
+      border-right: 1px solid var(--border);
+    }
+    .spec-cell:last-child { border-right: none; }
+
+    .spec-k {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .spec-v {
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-top: 0.15rem;
+    }
+
+    /* RIGHT HERO: CLI REPL */
+    .hero-right {
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.55rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-alt);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .repl-out {
+      flex: 1;
       padding: 1rem;
-      height: 260px;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      min-height: 220px;
+      max-height: 260px;
       overflow-y: auto;
-      color: #c9d1d9;
+      line-height: 1.65;
     }
 
-    .terminal-line {
-      margin-bottom: 0.4rem;
-      word-break: break-word;
+    .repl-line { margin-bottom: 0.35rem; }
+    .c-acc { color: var(--accent); }
+    .c-ok { color: var(--ok); }
+    .c-muted { color: var(--muted); }
+
+    .repl-cmds {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.5rem 1rem;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
     }
 
-    .cmd-prompt { color: var(--success); }
-    .cmd-accent { color: var(--accent); }
-    .cmd-warn { color: var(--warning); }
+    .cmd-chip {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      background: var(--bg);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.5rem;
+      cursor: pointer;
+    }
+    .cmd-chip:hover { color: var(--text); border-color: var(--accent); }
 
-    .terminal-input-row {
+    .repl-input-wrap {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       padding: 0.65rem 1rem;
       border-top: 1px solid var(--border);
-      background: #0d1117;
+      background: var(--bg);
+      font-family: var(--mono);
+      font-size: 0.82rem;
     }
 
-    .terminal-input-row input {
+    .repl-input-wrap input {
       flex: 1;
       background: transparent;
       border: none;
       color: var(--text);
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
+      font-family: var(--mono);
+      font-size: 0.82rem;
       outline: none;
     }
 
-    .quick-cmds {
-      display: flex;
-      gap: 0.4rem;
-      padding: 0.5rem 1rem;
-      background: #11161d;
-      border-top: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-
-    .chip-btn {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      padding: 0.2rem 0.55rem;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .chip-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    /* Project Cards & Interactive Panels */
-    .project-grid {
-      display: grid;
-      grid-template-columns: 1fr 1.1fr;
-      gap: 2rem;
-      align-items: stretch;
-    }
-
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.6rem;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-
-    .card:hover {
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin: 1rem 0;
-    }
-
-    .tag {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-    }
-
-    .feature-list {
-      list-style: none;
-      margin: 1rem 0;
-    }
-
-    .feature-list li {
-      padding: 0.35rem 0;
-      color: var(--text-muted);
-      display: flex;
-      gap: 0.6rem;
-      align-items: flex-start;
-    }
-
-    .feature-list li::before {
-      content: "▹";
-      color: var(--accent);
-      font-weight: bold;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.45rem;
-      padding: 0.55rem 1rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #21262d;
-      color: var(--text);
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .btn:hover {
-      background: #30363d;
-      border-color: var(--accent);
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #0d1117;
-      border-color: var(--accent);
-    }
-
-    .btn-primary:hover {
-      opacity: 0.9;
-      background: var(--accent);
-    }
-
-    /* Roblox Civ + CoH Simulator */
-    .rts-board {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 6px;
-      margin: 1rem 0;
-    }
-
-    .hex-tile {
-      aspect-ratio: 1;
-      background: #0d1117;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.15rem;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.15s;
-      user-select: none;
-    }
-
-    .hex-tile:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .hex-tile.owned {
-      background: rgba(56, 189, 248, 0.12);
-      border-color: rgba(56, 189, 248, 0.5);
-    }
-
-    .hex-tile.cover {
-      box-shadow: inset 0 0 0 2px rgba(63, 185, 80, 0.45);
-    }
-
-    .hex-tile.enemy {
-      background: rgba(248, 81, 73, 0.14);
-      border-color: rgba(248, 81, 73, 0.5);
-    }
-
-    .hex-label {
-      font-size: 0.62rem;
-      font-family: var(--font-mono);
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    .rts-hud {
+    /* SECTION HEADERS */
+    .sec-head {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
       flex-wrap: wrap;
-      gap: 0.5rem;
-      background: #0d1117;
-      padding: 0.7rem 0.9rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-family: var(--font-mono);
+      gap: 0.75rem;
+    }
+
+    .sec-title {
+      display: flex;
+      align-items: baseline;
+      gap: 0.85rem;
+    }
+
+    .sec-num {
+      font-family: var(--mono);
+      font-size: 0.88rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .sec-title h2 {
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    .sec-sub {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* SPLIT PROJECT PANELS */
+    .split-panel {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-left {
+      padding: 2rem;
+    }
+
+    .panel-right {
+      border-left: 1px solid var(--border);
+      padding: 1.75rem 2rem;
+      background: var(--surface);
+    }
+
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-family: var(--mono);
       font-size: 0.8rem;
     }
 
-    .log-box {
-      background: #090c10;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.7rem 0.9rem;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      height: 85px;
-      overflow-y: auto;
-      margin-top: 0.75rem;
-    }
-
-    /* BSS Macro Widget */
-    .macro-controls {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-      margin: 1rem 0;
-    }
-
-    @media (max-width: 520px) {
-      .macro-controls { grid-template-columns: 1fr; }
-    }
-
-    .select-input {
-      width: 100%;
-      padding: 0.55rem 0.75rem;
-      background: #0d1117;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-family: var(--font-sans);
-      font-size: 0.88rem;
-    }
-
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #0d1117;
-      border: 1px solid var(--border);
-      padding: 0.5rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
-    }
-
-    .bee-field {
-      position: relative;
-      height: 110px;
-      background: repeating-linear-gradient(
-        45deg,
-        #121912,
-        #121912 12px,
-        #162116 12px,
-        #162116 24px
-      );
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      margin: 0.75rem 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .bee-bot {
-      position: absolute;
-      font-size: 1.5rem;
-      transition: all 0.45s ease-in-out;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8));
-    }
-
-    .field-overlay {
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      background: rgba(13, 17, 23, 0.8);
-      padding: 0.3rem 0.7rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      z-index: 2;
-    }
-
-    /* Blender 3D Canvas */
-    .viewport-wrapper {
-      position: relative;
-      background: #1a1d24;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .viewport-topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.55rem 0.9rem;
-      background: #12151a;
+    .spec-table td {
+      padding: 0.5rem 0;
       border-bottom: 1px solid var(--border);
-      font-family: var(--font-mono);
+    }
+
+    .spec-table td:first-child {
+      color: var(--muted);
+      width: 38%;
+    }
+
+    .notes-list {
+      list-style: none;
+      margin-top: 1rem;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .notes-list li {
+      padding: 0.35rem 0;
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .notes-list li::before {
+      content: "/";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-weight: 700;
+    }
+
+    /* BUTTONS */
+    .btn {
+      font-family: var(--mono);
       font-size: 0.78rem;
+      padding: 0.45rem 0.85rem;
+      border: 1px solid var(--border-strong);
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .btn:hover { border-color: var(--accent); }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    .btn-accent:hover { opacity: 0.9; }
+
+    /* 01: TACTICAL SECTOR GRID */
+    .tac-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       flex-wrap: wrap;
       gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .tac-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .tac-stats div {
+      padding: 0.45rem 0.65rem;
+      border-right: 1px solid var(--border);
+    }
+    .tac-stats div:last-child { border-right: none; }
+
+    .sector-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-bottom: 0.85rem;
+    }
+
+    .sector {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      padding: 0.55rem 0.35rem;
+      min-height: 62px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      font-family: var(--mono);
+      transition: border-color 0.12s;
+      user-select: none;
+    }
+
+    .sector:hover { border-color: var(--text); }
+
+    .sector.ally {
+      border-color: var(--ok);
+      background: rgba(46, 160, 67, 0.1);
+    }
+
+    .sector.hostile {
+      border-color: var(--hostile);
+      background: rgba(229, 72, 77, 0.1);
+    }
+
+    .sector.cover-node {
+      border-left: 3px solid var(--warn);
+    }
+
+    .sector-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .sector-unit {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 0.2rem;
+    }
+
+    .console-feed {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.65rem 0.8rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      height: 82px;
+      overflow-y: auto;
+    }
+
+    /* 02: PYTHON BSS TELEMETRY */
+    .macro-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin: 0.85rem 0;
+    }
+    @media (max-width: 520px) { .macro-bar { grid-template-columns: 1fr; } }
+
+    .ctrl-select {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+    }
+
+    .check-strip {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      margin-bottom: 0.85rem;
+      color: var(--muted);
+    }
+
+    .check-strip label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+    }
+
+    .telemetry-box {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      margin-bottom: 0.85rem;
+    }
+
+    .telemetry-head {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 0.74rem;
+    }
+
+    canvas#bssCanvas {
+      display: block;
+      width: 100%;
+      height: 118px;
+    }
+
+    /* 03: BLENDER VIEWPORT */
+    .vp-box {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      position: relative;
+    }
+
+    .vp-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.45rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-alt);
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .vp-overlay {
+      position: absolute;
+      top: 48px;
+      left: 12px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      pointer-events: none;
+      line-height: 1.4;
     }
 
     canvas#blenderCanvas {
       display: block;
       width: 100%;
-      height: 310px;
+      height: 290px;
       cursor: grab;
     }
+    canvas#blenderCanvas:active { cursor: grabbing; }
 
-    canvas#blenderCanvas:active {
-      cursor: grabbing;
-    }
-
-    .viewport-hint {
-      position: absolute;
-      bottom: 10px;
-      left: 12px;
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      background: rgba(13, 17, 23, 0.75);
-      padding: 0.2rem 0.5rem;
-      border-radius: 6px;
-      pointer-events: none;
-    }
-
-    /* Side Quests Grid */
-    .mini-grid {
+    /* 04: SIDE PROJECTS LEDGER */
+    .ledger {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: repeat(2, 1fr);
     }
+    @media (max-width: 780px) { .ledger { grid-template-columns: 1fr; } }
 
-    .mini-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.25rem;
+    .ledger-item {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 0.75rem;
     }
+    .ledger-item:nth-child(2n) { border-right: none; }
 
-    .progress-bar {
-      width: 100%;
-      height: 7px;
-      background: #0d1117;
-      border-radius: 999px;
-      overflow: hidden;
+    .ledger-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .status-tag {
+      padding: 0.12rem 0.45rem;
       border: 1px solid var(--border);
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 999px;
-    }
-
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 2rem 1.5rem;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--bg-card);
-      border: 1px solid var(--accent);
       color: var(--text);
-      padding: 0.75rem 1.1rem;
-      border-radius: 10px;
-      font-size: 0.88rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.25s ease;
-      z-index: 999;
     }
 
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
+    /* FOOTER */
+    footer {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
     }
+
+    footer a { color: var(--text); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="nav-container">
-      <a href="#" class="logo">&lt;<span>DevForge</span> /&gt;</a>
-      <nav>
-        <a href="#roblox">Roblox Game</a>
-        <a href="#python">BSS Macro</a>
-        <a href="#blender">Blender 3D</a>
-        <a href="#sidequests">Side Quests</a>
-        <a href="contact.html">Contact</a>
-        <a href="devlog.html">Devlog</a>
-        <div class="theme-switcher" title="Kies accentkleur">
-          <button class="theme-btn theme-blue active" onclick="setTheme('default', this)" aria-label="Roblox Blauw"></button>
-          <button class="theme-btn theme-orange" onclick="setTheme('blender', this)" aria-label="Blender Oranje"></button>
-          <button class="theme-btn theme-gold" onclick="setTheme('bss', this)" aria-label="BSS Goud"></button>
-        </div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-marker"></span>
+        dadaverver2
+      </a>
+      <nav class="nav-links">
+        <a href="#roblox">01.roblox</a>
+        <a href="#python">02.bss_macro</a>
+        <a href="#blender">03.blender</a>
+        <a href="#extra">04.lab</a>
+        <a href="devlog.html" class="nav-ext">devlog.html</a>
+        <a href="contact.html" class="nav-ext">contact.html</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
       </nav>
     </div>
   </header>
 
-  <main>
+  <main class="wrap">
     <!-- HERO -->
     <section class="hero">
-      <div>
-        <div class="badge">
-          <span class="pulse-dot"></span>
-          Status: LuaU Pathfinding & Python OCR testen
+      <div class="hero-left">
+        <div class="meta-strip">
+          <span>HANDLE: <strong>dadaverver2</strong></span>
+          <span>STACK: <strong>LuaU / Python / Blender</strong></span>
+          <span>STATUS: <strong>Actief in dev</strong></span>
         </div>
-        <h1>Games bouwen, macros scripten & werelden in 3D modelleren.</h1>
-        <p class="lead">
-          Welkom in mijn dev-werkplaats. Overdag en 's avonds bouw ik aan een ambitieuze <strong>Roblox-strategiegame</strong> (een mix van <em>Civilization</em> en <em>Company of Heroes</em>), schrijf ik een slimme <strong>Bee Swarm Simulator macro in Python</strong> en modelleer ik low-poly assets in <strong>Blender</strong>.
+
+        <h1>Gameplay-systemen,<br>automatisering & 3D.</h1>
+
+        <p class="hero-copy">
+          Ik bouw aan een <strong>Roblox strategiegame</strong> die de schaal van <em>Civilization</em> combineert met squad-tactieken uit <em>Company of Heroes</em>. Daarnaast ontwikkel ik een computer-vision <strong>BSS macro in Python</strong> en modelleer ik low-poly voertuigen en terrein in <strong>Blender</strong>.
         </p>
 
-        <div class="hero-stats">
-          <div class="stat-box">
-            <div class="stat-val" id="coffeeCount">42</div>
-            <div class="stat-label">Koppen koffie</div>
+        <div class="spec-strip">
+          <div class="spec-cell">
+            <div class="spec-k">Project 01</div>
+            <div class="spec-v">Roblox RTS</div>
           </div>
-          <div class="stat-box">
-            <div class="stat-val">LuaU + Py</div>
-            <div class="stat-label">Main Stack</div>
+          <div class="spec-cell">
+            <div class="spec-k">Project 02</div>
+            <div class="spec-v">Py + OpenCV</div>
           </div>
-          <div class="stat-box">
-            <div class="stat-val">64+</div>
-            <div class="stat-label">Blender Assets</div>
+          <div class="spec-cell">
+            <div class="spec-k">Koffie vandaag</div>
+            <div class="spec-v" id="coffeeStat">03</div>
           </div>
         </div>
       </div>
 
-      <!-- INTERACTIEVE TERMINAL -->
-      <div class="terminal">
-        <div class="terminal-bar">
-          <div class="dots"><span></span><span></span><span></span></div>
-          <span style="color: var(--text-muted); font-size: 0.78rem;">dev@werkplaats:~</span>
-          <span style="font-size: 0.72rem; color: var(--accent);">bash</span>
+      <!-- INTERACTIEVE CLI -->
+      <div class="hero-right">
+        <div class="panel-bar">
+          <span>DEV_CONSOLE // dadaverver2</span>
+          <span id="clockSpan">--:--:--</span>
         </div>
-        <div class="terminal-body" id="termBody">
-          <div class="terminal-line"><span class="cmd-accent">DevOS v2.4</span> geladen. Typ <span class="cmd-warn">'help'</span> of klik op een knop hieronder.</div>
+        <div class="repl-out" id="replOut">
+          <div class="repl-line c-muted"># Lokale dev-shell klaar.</div>
+          <div class="repl-line">Typ <span class="c-acc">help</span> of kies een snelcommando hieronder.</div>
         </div>
-        <div class="quick-cmds">
-          <button class="chip-btn" onclick="runCmd('help')">help</button>
-          <button class="chip-btn" onclick="runCmd('roblox')">roblox</button>
-          <button class="chip-btn" onclick="runCmd('bss')">bss</button>
-          <button class="chip-btn" onclick="runCmd('blender')">blender</button>
-          <button class="chip-btn" onclick="runCmd('koffie')">+ koffie</button>
+        <div class="repl-cmds">
+          <button class="cmd-chip" onclick="execCmd('help')">help</button>
+          <button class="cmd-chip" onclick="execCmd('roblox')">roblox</button>
+          <button class="cmd-chip" onclick="execCmd('bss')">bss</button>
+          <button class="cmd-chip" onclick="execCmd('blender')">blender</button>
+          <button class="cmd-chip" onclick="execCmd('coffee')">+coffee</button>
         </div>
-        <div class="terminal-input-row">
-          <span class="cmd-prompt">$</span>
-          <input type="text" id="termInput" placeholder="Typ een commando (bijv. help)..." autocomplete="off" />
+        <div class="repl-input-wrap">
+          <span class="c-acc">&gt;</span>
+          <input type="text" id="replInput" placeholder="commando..." autocomplete="off" />
         </div>
       </div>
     </section>
 
-    <!-- PROJECT 1: ROBLOX CIV + COH -->
+    <!-- 01: ROBLOX GAME -->
     <section id="roblox">
-      <div class="section-header">
-        <div class="badge">Roblox Studio • LuaU</div>
-        <h2>Project: "Frontline Empires" (Civ × Company of Heroes)</h2>
-        <p class="lead">Grootschalig rijk-management ontmoet intense squad-gebaseerde tactische gevechten in realtime.</p>
+      <div class="sec-head">
+        <div class="sec-title">
+          <span class="sec-num">01</span>
+          <h2>Roblox RTS — "Frontline Empires"</h2>
+        </div>
+        <span class="sec-sub">Roblox Studio / LuaU / 4X + Squad Tactics</span>
       </div>
 
-      <div class="project-grid">
-        <div class="card">
-          <h3>Hoe het werkt</h3>
-          <p style="color: var(--text-muted); margin-bottom: 0.75rem;">
-            Waarom kiezen tussen een 4X-empire builder en een tactische RTS? In deze Roblox-game claim je hex-sectoren voor grondstoffen en onderzoek je nieuwe tijdperken (zoals <em>Civilization</em>), terwijl je jouw eenheden in squads bestuurt met dekking, flankeren en onderdrukkingsvuur (zoals <em>Company of Heroes</em>).
+      <div class="split-panel">
+        <div class="panel-left">
+          <p style="color: var(--muted);">
+            Een hybride strategiespel in Roblox. Op macro-niveau verover je sectoren en onderzoek je nieuwe tijdperken (<em>Civilization</em>). Op micro-niveau stuur je squads aan die gebruikmaken van dekking, flankeren en onderdrukkingsvuur (<em>Company of Heroes</em>).
           </p>
-          <div class="tag-list">
-            <span class="tag">Roblox LuaU</span>
-            <span class="tag">Hex-Grid Generatie</span>
-            <span class="tag">Cover & Suppression AI</span>
-            <span class="tag">Tech Tree</span>
-          </div>
-          <ul class="feature-list">
-            <li><strong>Sector Economie:</strong> Verover hexes voor Mankracht, Brandstof & Wetenschap.</li>
-            <li><strong>Tactische Dekking:</strong> Muurtjes, loopgraven en kraters geven echte schade-reductie.</li>
-            <li><strong>Tijdperk Progressie:</strong> Upgrade je leger van Musketiers naar Tanks en Drones.</li>
+
+          <table class="spec-table">
+            <tr><td>Engine / Taal</td><td>Roblox Studio (LuaU)</td></tr>
+            <tr><td>Kaartsysteem</td><td>Hex- & Sector Grid met grondstoffen</td></tr>
+            <tr><td>Combat Model</td><td>Dekking-reductie & Suppression</td></tr>
+            <tr><td>Tijdperken</td><td>Oudheid → WO2 → Modern</td></tr>
+          </table>
+
+          <ul class="notes-list">
+            <li>Sectoren genereren continu Mankracht en Brandstof.</li>
+            <li>Loopgraven en muurtjes geven directe dekking tegen vuur.</li>
+            <li>Elke tijdperk-upgrade ontgrendelt zwaardere eenheden.</li>
           </ul>
         </div>
 
-        <!-- INTERACTIEVE MINI-GAME -->
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-            <h3>Mini-Simulatie: Sector Tactiek</h3>
+        <div class="panel-right">
+          <div class="tac-toolbar">
+            <span style="font-family:var(--mono); font-size:0.78rem; color:var(--muted);">SECTOR_SIMULATOR</span>
             <div style="display:flex; gap:0.4rem;">
-              <button class="btn" onclick="upgradeEra()">⚡ Tijdperk (<span id="eraName">WO2</span>)</button>
-              <button class="btn btn-primary" onclick="resetRts()">Reset Kaart</button>
+              <button class="btn" onclick="nextEra()">Era: <span id="eraLabel">WO2</span></button>
+              <button class="btn btn-accent" onclick="initGrid()">Reset</button>
             </div>
           </div>
-          <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.35rem;">
-            Klik op een tegel om een squad te sturen of aan te vallen. Groene rand = dekking!
-          </p>
 
-          <div class="rts-hud" style="margin-top:0.75rem;">
-            <span>👥 Mankracht: <strong id="resManpower" style="color:var(--accent)">120</strong></span>
-            <span>⛽ Brandstof: <strong id="resFuel" style="color:var(--warning)">60</strong></span>
-            <span>🚩 Sectoren: <strong id="resSectors" style="color:var(--success)">2/15</strong></span>
+          <div class="tac-stats">
+            <div>MANPOWER: <strong id="mpVal">120</strong></div>
+            <div>FUEL: <strong id="fuelVal">60</strong></div>
+            <div>OWNED: <strong id="ownVal">2/15</strong></div>
           </div>
 
-          <div class="rts-board" id="rtsBoard"></div>
+          <div class="sector-grid" id="sectorGrid"></div>
 
-          <div class="log-box" id="rtsLog">
-            <div>[LuaU] Hex-grid geïnitialiseerd. Selecteer een vijandelijk of leeg vakje.</div>
+          <div class="console-feed" id="rtsFeed">
+            <div>[LuaU] Grid geladen. Klik op een neutraal of vijandelijk vak om aan te vallen.</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- PROJECT 2: PYTHON BSS MACRO -->
+    <!-- 02: PYTHON BSS MACRO -->
     <section id="python">
-      <div class="section-header">
-        <div class="badge">Python 3.11 • OpenCV • PyAutoGUI</div>
-        <h2>Bee Swarm Simulator (BSS) Macro</h2>
-        <p class="lead">Volledig geautomatiseerde pollen-farming, nectar-rotatie en token-herkenning gebouwd in Python.</p>
+      <div class="sec-head">
+        <div class="sec-title">
+          <span class="sec-num">02</span>
+          <h2>Bee Swarm Simulator Macro</h2>
+        </div>
+        <span class="sec-sub">Python 3.11 / OpenCV / mss / PyAutoGUI</span>
       </div>
 
-      <div class="project-grid">
-        <!-- INTERACTIEVE MACRO SIM -->
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-            <h3>Live Macro Simulator</h3>
-            <button class="btn btn-primary" id="macroToggleBtn" onclick="toggleMacro()">▶ Start Macro</button>
+      <div class="split-panel">
+        <div class="panel-left">
+          <div class="tac-toolbar">
+            <span style="font-family:var(--mono); font-size:0.78rem; color:var(--muted);">TELEMETRY_PREVIEW</span>
+            <button class="btn btn-accent" id="macroBtn" onclick="toggleMacro()">Start Macro</button>
           </div>
 
-          <div class="macro-controls">
-            <div>
-              <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">Doelveld (Field)</label>
-              <select class="select-input" id="fieldSelect" onchange="updateFieldName()">
-                <option value="Pine Tree Forest">🌲 Pine Tree Forest (Blue)</option>
-                <option value="Pepper Patch">🌶️ Pepper Patch (Red)</option>
-                <option value="Coconut Field">🥥 Coconut Field (White)</option>
-                <option value="Strawberry Field">🍓 Strawberry Field</option>
-              </select>
+          <div class="macro-bar">
+            <select class="ctrl-select" id="bssField">
+              <option value="Pine Tree Forest">Pine Tree Forest</option>
+              <option value="Pepper Patch">Pepper Patch</option>
+              <option value="Coconut Field">Coconut Field</option>
+              <option value="Strawberry Field">Strawberry Field</option>
+            </select>
+            <select class="ctrl-select" id="bssPattern">
+              <option value="CornerXSnake.py">CornerXSnake.py</option>
+              <option value="e_lol_diamond.py">e_lol_diamond.py</option>
+              <option value="SpiralBox.py">SpiralBox.py</option>
+            </select>
+          </div>
+
+          <div class="check-strip">
+            <label><input type="checkbox" id="optConvert" checked /> auto_convert</label>
+            <label><input type="checkbox" id="optCv" checked /> opencv_token_scan</label>
+          </div>
+
+          <div class="telemetry-box">
+            <div class="telemetry-head">
+              <span id="macroState">STATE: IDLE</span>
+              <span id="macroRate" style="color:var(--accent);">0.0M honey/s</span>
             </div>
-            <div>
-              <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">Patroon (Pattern)</label>
-              <select class="select-input" id="patternSelect">
-                <option value="CornerXSnake">CornerXSnake.py</option>
-                <option value="e_lol">e_lol_diamond.py</option>
-                <option value="Squares">SpiralSquares.py</option>
-              </select>
-            </div>
+            <canvas id="bssCanvas"></canvas>
           </div>
 
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-            <label class="toggle-row">
-              <span>Auto-Convert</span>
-              <input type="checkbox" id="chkConvert" checked />
-            </label>
-            <label class="toggle-row">
-              <span>OpenCV Token Scan</span>
-              <input type="checkbox" id="chkTokens" checked />
-            </label>
-          </div>
-
-          <div class="bee-field" id="beeField">
-            <span class="bee-bot" id="beeBot">🐝</span>
-            <span class="field-overlay" id="fieldOverlay">Status: Idle • 0 Honey/sec</span>
-          </div>
-
-          <div class="log-box" id="macroLog">
-            <div>[Python] Klaar om te draaien. Kies een veld en klik op 'Start Macro'.</div>
+          <div class="console-feed" id="bssFeed">
+            <div>[py] Wachten op start-commando...</div>
           </div>
         </div>
 
-        <div class="card">
-          <h3>Technische Architectuur</h3>
-          <p style="color: var(--text-muted); margin-bottom: 0.75rem;">
-            In plaats van domme muisklikken gebruikt de macro computer vision (OpenCV) om het scherm uit te lezen, rugzak-capaciteit te herkennen en automatisch bij te sturen als de speler van het veld afloopt.
+        <div class="panel-right">
+          <p style="color: var(--muted);">
+            Een eigen BSS-macro geschreven in Python die niet blind op timers vertrouwt. Via snelle screen-captures (<code>mss</code>) en <code>OpenCV</code> leest het script de rugzak, token-iconen en veld-randen uit om drift te corrigeren.
           </p>
-          <div class="tag-list">
-            <span class="tag">Python</span>
-            <span class="tag">OpenCV (cv2)</span>
-            <span class="tag">mss Screen Capture</span>
-            <span class="tag">Discord Webhooks</span>
-          </div>
-          <ul class="feature-list">
-            <li><strong>Reset & Pathing:</strong> Loopt pixel-nauwkeurig vanaf de hive via de cannon naar elk veld.</li>
-            <li><strong>Drift Compensatie:</strong> Detecteert via template matching of de speler nog op bloemen staat.</li>
-            <li><strong>Webhook Rapportage:</strong> Stuurt elk uur een grafiek met Honey/hr naar Discord.</li>
-            <li><strong>Auto-Quests & Planters:</strong> Houdt automatisch Nectar-buffs op 100%.</li>
+
+          <table class="spec-table">
+            <tr><td>Vision</td><td>OpenCV template matching</td></tr>
+            <tr><td>Screen Capture</td><td>mss (lage CPU belasting)</td></tr>
+            <tr><td>Pathing</td><td>Pixel-calibrated cannon routes</td></tr>
+            <tr><td>Rapportage</td><td>Discord Webhook (uurgrafiek)</td></tr>
+          </table>
+
+          <ul class="notes-list">
+            <li>Detecteert automatisch wanneer de rugzak vol is en keert terug naar de hive.</li>
+            <li>Prioriteert Haste, Focus en Precision tokens binnen bereik.</li>
+            <li>Houdt optioneel Nectar-timers en Planters bij.</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <!-- PROJECT 3: BLENDER 3D -->
+    <!-- 03: BLENDER 3D -->
     <section id="blender">
-      <div class="section-header">
-        <div class="badge">Blender 4.x • Low-Poly & Hard-Surface</div>
-        <h2>3D Modellering & Asset Pipeline</h2>
-        <p class="lead">Van schets tot geoptimaliseerde meshes klaar voor Roblox Studio.</p>
+      <div class="sec-head">
+        <div class="sec-title">
+          <span class="sec-num">03</span>
+          <h2>Blender 3D & Asset Pipeline</h2>
+        </div>
+        <span class="sec-sub">Blender 4.x / Hard-Surface / Low-Poly</span>
       </div>
 
-      <div class="project-grid">
-        <div class="card">
-          <h3>Stijl & Optimalisatie</h3>
-          <p style="color: var(--text-muted); margin-bottom: 0.75rem;">
-            Voor een RTS-game in Roblox met tientallen eenheden tegelijk is een lage polycount cruciaal. In Blender modelleer ik modulaire voertuigen, gebouwen en terrein-tegels met strakke <em>Vertex Colors</em> en simpele PBR-materialen.
+      <div class="split-panel">
+        <div class="panel-left">
+          <p style="color: var(--muted);">
+            Alle 3D-modellen voor de Roblox-game worden in Blender gebouwd met focus op strakke silhouetten en minimale polycounts, zodat tientallen squads tegelijk zonder FPS-drops gerenderd kunnen worden.
           </p>
-          <div class="tag-list">
-            <span class="tag">Hard-Surface</span>
-            <span class="tag">Low-Poly</span>
-            <span class="tag">UV Unwrapping</span>
-            <span class="tag">FBX Export</span>
-          </div>
-          <ul class="feature-list">
-            <li><strong>Voertuigen:</strong> Modulaire tanks met losse draaiende koepels (turrets).</li>
-            <li><strong>Terrein:</strong> Hex-tegels met bos, bunkers, bruggen en krater-variaties.</li>
-            <li><strong>Rigging:</strong> Basis-animaties voor infanterie en rupsbanden.</li>
+
+          <table class="spec-table">
+            <tr><td>Stijl</td><td>Low-Poly Hard-Surface</td></tr>
+            <tr><td>Shading</td><td>Vertex Colors + Flat Shading</td></tr>
+            <tr><td>Export</td><td>FBX met losse turret-origins</td></tr>
+            <tr><td>Budget</td><td>&lt; 800 tris per voertuig</td></tr>
+          </table>
+
+          <ul class="notes-list">
+            <li>Modulaire hex-tegels (bunkers, loopgraven, brandstofdepots).</li>
+            <li>Sleep in het viewport rechts om het model vanuit elke hoek te bekijken.</li>
           </ul>
         </div>
 
-        <!-- INTERACTIEVE BLENDER VIEWPORT -->
-        <div class="viewport-wrapper">
-          <div class="viewport-topbar">
-            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-              <button class="chip-btn" onclick="setModel('tank')">🛡️ Low-Poly Tank</button>
-              <button class="chip-btn" onclick="setModel('hex')">⬡ Hex Bunker</button>
-              <button class="chip-btn" onclick="setModel('crystal')">💎 Honeydrop</button>
+        <div class="panel-right">
+          <div class="vp-box">
+            <div class="vp-bar">
+              <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+                <button class="cmd-chip" onclick="switchMesh('tank')">mesh: tank</button>
+                <button class="cmd-chip" onclick="switchMesh('bunker')">mesh: hex_bunker</button>
+                <button class="cmd-chip" onclick="switchMesh('drop')">mesh: honeydrop</button>
+              </div>
+              <div style="display:flex; gap:0.35rem;">
+                <button class="cmd-chip" onclick="setMode3D('wire')">wire</button>
+                <button class="cmd-chip" onclick="setMode3D('solid')">solid</button>
+                <button class="cmd-chip" onclick="toggleSpin3D()" id="spinLabel">spin: on</button>
+              </div>
             </div>
-            <div style="display:flex; gap:0.4rem;">
-              <button class="chip-btn" onclick="setShading('wire')">Wireframe</button>
-              <button class="chip-btn" onclick="setShading('solid')">Solid</button>
-              <button class="chip-btn" onclick="toggleSpin()" id="spinBtn">⏸ Auto-Spin</button>
+            <div class="vp-overlay" id="vpOverlay">
+              User Persp<br>
+              Object: medium_tank<br>
+              20 Verts | 14 Faces
             </div>
+            <canvas id="blenderCanvas"></canvas>
           </div>
-          <canvas id="blenderCanvas"></canvas>
-          <div class="viewport-hint">Sleep met muis/vinger om 3D-model te draaien • <span id="polyStats">14 Verts | 18 Edges</span></div>
         </div>
       </div>
     </section>
 
-    <!-- SIDE QUESTS -->
-    <section id="sidequests">
-      <div class="section-header">
-        <div class="badge">Experimenten & Mini-Tools</div>
-        <h2>Andere Kleine Projecten</h2>
-        <p class="lead">Tussendoor pruts ik graag aan handige tools, shaders en bots.</p>
+    <!-- 04: SIDE PROJECTS -->
+    <section id="extra">
+      <div class="sec-head">
+        <div class="sec-title">
+          <span class="sec-num">04</span>
+          <h2>Lab & Overige Tools</h2>
+        </div>
+        <span class="sec-sub">Kleine scripts en experimenten</span>
       </div>
 
-      <div class="mini-grid">
-        <div class="mini-card">
+      <div class="ledger">
+        <div class="ledger-item">
           <div>
-            <h3>🤖 Discord Dev-Bot</h3>
-            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.35rem;">
-              Een Python bot die GitHub commits, Roblox API-status en BSS macro statistieken netjes in één kanaal post.
-            </p>
-          </div>
-          <div>
-            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">
-              <span>Voortgang</span><span>85%</span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+            <div class="ledger-top"><span>SCRIPT // PYTHON</span><span class="status-tag">85%</span></div>
+            <h3 style="margin:0.45rem 0 0.25rem;">Discord Status & Webhook Bot</h3>
+            <p style="font-size:0.88rem; color:var(--muted);">Post automatische macro-stats en GitHub commits overzichtelijk in een privé Discord-kanaal.</p>
           </div>
         </div>
 
-        <div class="mini-card">
+        <div class="ledger-item">
           <div>
-            <h3>📐 LuaU Quadtree Benchmark</h3>
-            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.35rem;">
-              Snelle ruimtelijke indexering zodat 200+ soldaten op de kaart zonder lag doelwitten kunnen scannen.
-            </p>
-          </div>
-          <div>
-            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">
-              <span>Voortgang</span><span>95%</span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
+            <div class="ledger-top"><span>BENCHMARK // LUAU</span><span class="status-tag">95%</span></div>
+            <h3 style="margin:0.45rem 0 0.25rem;">Quadtree Spatial Lookup</h3>
+            <p style="font-size:0.88rem; color:var(--muted);">Snelle target-scanning zodat 200+ eenheden op de map zonder lag vijanden vinden.</p>
           </div>
         </div>
 
-        <div class="mini-card">
+        <div class="ledger-item">
           <div>
-            <h3>🎨 Blender Batch Exporter</h3>
-            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.35rem;">
-              Klein Blender Python-add-on script dat alle geselecteerde meshes los centreert en als .fbx exporteert.
-            </p>
-          </div>
-          <div>
-            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">
-              <span>Voortgang</span><span>100%</span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+            <div class="ledger-top"><span>ADDON // BLENDER PY</span><span class="status-tag">100%</span></div>
+            <h3 style="margin:0.45rem 0 0.25rem;">Batch FBX Center & Export</h3>
+            <p style="font-size:0.88rem; color:var(--muted);">Blender-scriptje dat geselecteerde assets automatisch naar (0,0,0) zet en los exporteert.</p>
           </div>
         </div>
 
-        <div class="mini-card">
+        <div class="ledger-item">
           <div>
-            <h3>☕ Koffie & Idea Pad</h3>
-            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.35rem;">
-              Heb je een idee voor een eenheid in de Roblox game of een feature voor de BSS macro?
-            </p>
+            <div class="ledger-top"><span>PAGINA'S // MEER LEZEN</span><span class="status-tag">LIVE</span></div>
+            <h3 style="margin:0.45rem 0 0.25rem;">Devlog & Contact</h3>
+            <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0.65rem;">Bekijk de live roadmap of stuur een bericht met feedback of vragen.</p>
+            <div style="display:flex; gap:0.5rem;">
+              <a href="devlog.html" class="btn" style="text-decoration:none;">Open devlog.html</a>
+              <a href="contact.html" class="btn btn-accent" style="text-decoration:none;">Open contact.html</a>
+            </div>
           </div>
-          <button class="btn" onclick="showToast('Bedankt voor je interesse! Stuur gerust een DM of open een issue op GitHub: dadaverver2')">
-            💡 Stuur een Dev-Idee
-          </button>
         </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <p>Gebouwd met HTML, CSS, JavaScript & veel koffie • <span style="color:var(--accent)">DevForge Portfolio</span></p>
+    <span>dadaverver2 // handgebouwde portfolio</span>
+    <div style="display:flex; gap:1.25rem;">
+      <a href="devlog.html">devlog.html</a>
+      <a href="contact.html">contact.html</a>
+    </div>
   </footer>
 
-  <div class="toast" id="toast"></div>
-
   <script>
-    /* =========================
-       THEMA & TOAST
-    ========================= */
-    function setTheme(theme, btn) {
-      if (theme === 'default') {
-        document.documentElement.removeAttribute('data-theme');
+    /* ========================
+       MODE SWITCH (DARK / PAPER)
+    ======================== */
+    function toggleMode() {
+      const isPaper = document.documentElement.getAttribute('data-mode') === 'paper';
+      if (isPaper) {
+        document.documentElement.removeAttribute('data-mode');
+        document.getElementById('modeToggle').textContent = 'mode: dark';
       } else {
-        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-mode', 'paper');
+        document.getElementById('modeToggle').textContent = 'mode: paper';
       }
-      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
     }
 
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 3200);
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clockSpan').textContent = now.toTimeString().split(' ')[0];
     }
+    setInterval(updateClock, 1000);
+    updateClock();
 
-    /* =========================
-       INTERACTIEVE TERMINAL
-    ========================= */
-    const termBody = document.getElementById('termBody');
-    const termInput = document.getElementById('termInput');
-    let coffees = 42;
+    /* ========================
+       DEV CONSOLE REPL
+    ======================== */
+    const replOut = document.getElementById('replOut');
+    const replInput = document.getElementById('replInput');
+    let coffees = 3;
 
-    const commands = {
-      help: "Beschikbare commando's: <span class='cmd-accent'>roblox</span>, <span class='cmd-accent'>bss</span>, <span class='cmd-accent'>blender</span>, <span class='cmd-accent'>koffie</span>, <span class='cmd-accent'>status</span>, <span class='cmd-accent'>clear</span>",
-      roblox: "[Roblox] Bezig met 'Frontline Empires': Hex-capture logic werkt, nu tank-turret rotatie fixen in LuaU.",
-      bss: "[Python] BSS Macro v1.8 draait stabiel. Gemiddelde opbrengst: ~85B honey/uur in Pine Tree Forest.",
-      blender: "[Blender] Laatst gemodelleerd: Medium Tank (680 tris) + Modulaire Loopgraaf set.",
-      status: "[Systeem] CPU: 34% | Roblox Studio: Open | VS Code: Open | Blender: Minimized.",
-      koffie: () => {
+    const cmdMap = {
+      help: "cmds: <span class='c-acc'>roblox</span>, <span class='c-acc'>bss</span>, <span class='c-acc'>blender</span>, <span class='c-acc'>coffee</span>, <span class='c-acc'>clear</span>",
+      roblox: "[roblox] Hex-grid & squad cover logic actief. Nu bezig met turret CFrame rotatie.",
+      bss: "[bss] Python + OpenCV draait stabiel in Pine Tree Forest (~85B/hr piek).",
+      blender: "[blender] Laatste export: medium_tank.fbx (680 tris, vertex-colored).",
+      coffee: () => {
         coffees++;
-        document.getElementById('coffeeCount').textContent = coffees;
-        return `[Energie] +1 kop koffie ingeschonken! Totaal vandaag: ${coffees}. Productiviteit +15%.`;
+        document.getElementById('coffeeStat').textContent = String(coffees).padStart(2, '0');
+        return `[energy] +1 koffie gezet. Teller staat op ${coffees}.`;
       }
     };
 
-    function runCmd(raw) {
-      const cmd = raw.trim().toLowerCase();
-      if (!cmd) return;
-
-      addTermLine(`<span class="cmd-prompt">$</span> ${escapeHtml(raw)}`);
-
-      if (cmd === 'clear') {
-        termBody.innerHTML = '';
-        return;
-      }
-
-      if (commands[cmd]) {
-        const res = typeof commands[cmd] === 'function' ? commands[cmd]() : commands[cmd];
-        addTermLine(res);
+    function execCmd(raw) {
+      const c = raw.trim().toLowerCase();
+      if (!c) return;
+      appendRepl(`<span class="c-acc">&gt;</span> ${c.replace(/</g, '&lt;')}`);
+      if (c === 'clear') { replOut.innerHTML = ''; return; }
+      if (cmdMap[c]) {
+        const res = typeof cmdMap[c] === 'function' ? cmdMap[c]() : cmdMap[c];
+        appendRepl(res);
       } else {
-        addTermLine(`<span class="cmd-warn">Onbekend commando: '${escapeHtml(cmd)}'. Typ 'help'.</span>`);
+        appendRepl(`<span class="c-muted">onbekend commando '${c.replace(/</g, '&lt;')}'. typ 'help'.</span>`);
       }
-      termBody.scrollTop = termBody.scrollHeight;
+      replOut.scrollTop = replOut.scrollHeight;
     }
 
-    function addTermLine(html) {
-      const div = document.createElement('div');
-      div.className = 'terminal-line';
-      div.innerHTML = html;
-      termBody.appendChild(div);
+    function appendRepl(html) {
+      const d = document.createElement('div');
+      d.className = 'repl-line';
+      d.innerHTML = html;
+      replOut.appendChild(d);
     }
 
-    function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    }
-
-    termInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        runCmd(termInput.value);
-        termInput.value = '';
-      }
+    replInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { execCmd(replInput.value); replInput.value = ''; }
     });
 
-    /* =========================
-       ROBLOX CIV x COH MINI-SIM
-    ========================= */
+    /* ========================
+       01: ROBLOX SECTOR GRID
+    ======================== */
     const eras = [
-      { name: "Oudheid", unit: "🛡️", atk: 1 },
-      { name: "WO2", unit: "🪖", atk: 2 },
-      { name: "Modern", unit: "🚜", atk: 3 }
+      { label: 'OUD', unit: '[MUSK]' },
+      { label: 'WO2', unit: '[INF]' },
+      { label: 'MOD', unit: '[TNK]' }
     ];
-    let currentEra = 1;
-    let manpower = 120;
-    let fuel = 60;
-    let tiles = [];
+    let eraIdx = 1;
+    let mp = 120, fuel = 60, sectors = [];
 
-    function resetRts() {
-      manpower = 120;
-      fuel = 60;
-      tiles = Array.from({ length: 15 }, (_, i) => ({
-        id: i,
-        owner: i < 2 ? 'player' : (i > 11 ? 'enemy' : 'neutral'),
+    function initGrid() {
+      mp = 120; fuel = 60;
+      const cols = ['A','B','C','D','E'];
+      sectors = Array.from({ length: 15 }, (_, i) => ({
+        coord: cols[i % 5] + (Math.floor(i / 5) + 1),
+        owner: i < 2 ? 'ally' : (i > 11 ? 'hostile' : 'neutral'),
         cover: [3, 6, 8, 10, 13].includes(i),
-        fuelNode: [4, 7, 11].includes(i)
+        fuel: [4, 7, 11].includes(i)
       }));
-      renderRts();
-      logRts("[LuaU] Nieuwe match gestart. Verover sectoren voor meer grondstoffen!");
+      drawGrid();
+      pushRtsLog('[LuaU] Kaart gereset. Klik op sectoren om aan te vallen of grondstoffen te innen.');
     }
 
-    function upgradeEra() {
-      if (currentEra >= eras.length - 1) {
-        currentEra = 0;
-      } else {
-        if (fuel < 40) {
-          logRts("[Tech] Niet genoeg brandstof (40 nodig) om naar het volgende tijdperk te gaan!");
-          return;
-        }
+    function nextEra() {
+      if (eraIdx < eras.length - 1) {
+        if (fuel < 40) { pushRtsLog('[Tech] 40 brandstof nodig voor tijdperk-upgrade.'); return; }
         fuel -= 40;
-        currentEra++;
-      }
-      document.getElementById('eraName').textContent = eras[currentEra].name;
-      logRts(`[Civilization Tech] Geüpgraded naar tijdperk: ${eras[currentEra].name}!`);
-      renderRts();
-    }
-
-    function clickTile(idx) {
-      const t = tiles[idx];
-      if (t.owner === 'player') {
-        manpower += 15;
-        if (t.fuelNode) fuel += 15;
-        logRts(`[Economie] Sector #${idx+1} geïnspecteerd (+15 Mankracht${t.fuelNode ? ', +15 Brandstof' : ''}).`);
+        eraIdx++;
       } else {
-        const cost = t.owner === 'enemy' ? 35 : 20;
-        if (manpower < cost) {
-          logRts(`[Squad] Te weinig mankracht! Nodig: ${cost}. Klik op je eigen sectoren om te verzamelen.`);
-          return;
-        }
-        manpower -= cost;
-        if (t.owner === 'enemy' && t.cover) {
-          logRts(`[CoH Tactiek] Vijand zat in dekking! Zwaar vuurgevecht... Sector #${idx+1} veroverd!`);
-        } else {
-          logRts(`[Squad] Sector #${idx+1} succesvol ingenomen met ${eras[currentEra].name}-troepen!`);
-        }
-        t.owner = 'player';
-        if (t.fuelNode) fuel += 25;
+        eraIdx = 0;
       }
-      renderRts();
+      document.getElementById('eraLabel').textContent = eras[eraIdx].label;
+      pushRtsLog(`[Tech] Tijdperk gewijzigd naar ${eras[eraIdx].label}.`);
+      drawGrid();
     }
 
-    function renderRts() {
-      const board = document.getElementById('rtsBoard');
-      board.innerHTML = '';
-      let ownedCount = 0;
+    function hitSector(i) {
+      const s = sectors[i];
+      if (s.owner === 'ally') {
+        mp += 15;
+        if (s.fuel) fuel += 15;
+        pushRtsLog(`[Econ] Sector ${s.coord} geïnd (+15 MP${s.fuel ? ', +15 FUEL' : ''}).`);
+      } else {
+        const cost = s.owner === 'hostile' ? 35 : 20;
+        if (mp < cost) { pushRtsLog(`[Squad] Te weinig manpower (${cost} nodig).`); return; }
+        mp -= cost;
+        pushRtsLog(s.cover && s.owner === 'hostile'
+          ? `[Combat] Vijand in dekking bij ${s.coord} onderdrukt en veroverd.`
+          : `[Combat] Sector ${s.coord} ingenomen door ${eras[eraIdx].unit}.`);
+        s.owner = 'ally';
+        if (s.fuel) fuel += 25;
+      }
+      drawGrid();
+    }
 
-      tiles.forEach((t, i) => {
-        if (t.owner === 'player') ownedCount++;
+    function drawGrid() {
+      const grid = document.getElementById('sectorGrid');
+      grid.innerHTML = '';
+      let owned = 0;
+      sectors.forEach((s, i) => {
+        if (s.owner === 'ally') owned++;
         const el = document.createElement('div');
-        el.className = 'hex-tile' +
-          (t.owner === 'player' ? ' owned' : '') +
-          (t.owner === 'enemy' ? ' enemy' : '') +
-          (t.cover ? ' cover' : '');
-        el.onclick = () => clickTile(i);
-
-        let icon = t.fuelNode ? '⛽' : '🌾';
-        if (t.owner === 'player') icon = eras[currentEra].unit;
-        if (t.owner === 'enemy') icon = '🚩';
-
-        el.innerHTML = `<span>${icon}</span><span class="hex-label">${t.cover ? 'Cover' : 'Open'}</span>`;
-        board.appendChild(el);
+        el.className = `sector ${s.owner === 'ally' ? 'ally' : s.owner === 'hostile' ? 'hostile' : ''} ${s.cover ? 'cover-node' : ''}`;
+        el.onclick = () => hitSector(i);
+        const unitTxt = s.owner === 'ally' ? eras[eraIdx].unit : (s.owner === 'hostile' ? '[ENM]' : (s.fuel ? '[FUEL]' : '[OPEN]'));
+        el.innerHTML = `<div class="sector-top"><span>${s.coord}</span><span>${s.cover ? 'COV' : ''}</span></div><div class="sector-unit">${unitTxt}</div>`;
+        grid.appendChild(el);
       });
-
-      document.getElementById('resManpower').textContent = manpower;
-      document.getElementById('resFuel').textContent = fuel;
-      document.getElementById('resSectors').textContent = `${ownedCount}/15`;
+      document.getElementById('mpVal').textContent = mp;
+      document.getElementById('fuelVal').textContent = fuel;
+      document.getElementById('ownVal').textContent = `${owned}/15`;
     }
 
-    function logRts(msg) {
-      const box = document.getElementById('rtsLog');
-      box.innerHTML += `<div>${msg}</div>`;
+    function pushRtsLog(txt) {
+      const box = document.getElementById('rtsFeed');
+      box.innerHTML += `<div>${txt}</div>`;
       box.scrollTop = box.scrollHeight;
     }
 
-    resetRts();
+    initGrid();
 
-    /* =========================
-       PYTHON BSS MACRO SIMULATOR
-    ========================= */
-    let macroRunning = false;
-    let macroTimer = null;
-    let totalHoney = 0;
+    /* ========================
+       02: BSS TELEMETRY CANVAS
+    ======================== */
+    const bssCanvas = document.getElementById('bssCanvas');
+    const bssCtx = bssCanvas.getContext('2d');
+    let bssRunning = false, bssTimer = null;
+    let botPos = { x: 0.5, y: 0.5 }, trail = [{ x: 0.5, y: 0.5 }];
+
+    function resizeBss() {
+      bssCanvas.width = bssCanvas.parentElement.clientWidth;
+      bssCanvas.height = 118;
+      renderBssField();
+    }
+    window.addEventListener('resize', resizeBss);
 
     function toggleMacro() {
-      macroRunning = !macroRunning;
-      const btn = document.getElementById('macroToggleBtn');
-      if (macroRunning) {
-        btn.textContent = '⏹ Stop Macro';
-        btn.style.background = 'var(--danger)';
-        btn.style.borderColor = 'var(--danger)';
-        logMacro(`[Python] Macro gestart op ${document.getElementById('fieldSelect').value} (${document.getElementById('patternSelect').value})`);
-        macroStep();
-        macroTimer = setInterval(macroStep, 1100);
+      bssRunning = !bssRunning;
+      const btn = document.getElementById('macroBtn');
+      if (bssRunning) {
+        btn.textContent = 'Stop Macro';
+        document.getElementById('macroState').textContent = 'STATE: FARMING';
+        pushBssLog(`[py] Gestart: ${document.getElementById('bssField').value} (${document.getElementById('bssPattern').value})`);
+        stepBss();
+        bssTimer = setInterval(stepBss, 950);
       } else {
-        btn.textContent = '▶ Start Macro';
-        btn.style.background = '';
-        btn.style.borderColor = '';
-        clearInterval(macroTimer);
-        document.getElementById('fieldOverlay').textContent = 'Status: Gestopt';
-        logMacro('[Python] Macro gepauzeerd door gebruiker.');
+        btn.textContent = 'Start Macro';
+        document.getElementById('macroState').textContent = 'STATE: IDLE';
+        document.getElementById('macroRate').textContent = '0.0M honey/s';
+        clearInterval(bssTimer);
+        pushBssLog('[py] Macro gestopt.');
       }
     }
 
-    function updateFieldName() {
-      if (macroRunning) {
-        logMacro(`[Pathing] Navigeren naar ${document.getElementById('fieldSelect').value}...`);
-      }
-    }
+    function stepBss() {
+      botPos = { x: 0.1 + Math.random() * 0.8, y: 0.18 + Math.random() * 0.65 };
+      trail.push(botPos);
+      if (trail.length > 14) trail.shift();
+      renderBssField();
 
-    function macroStep() {
-      const bee = document.getElementById('beeBot');
-      const field = document.getElementById('beeField');
-      const maxX = field.clientWidth - 40;
-      const maxY = field.clientHeight - 40;
-      const rx = Math.max(10, Math.floor(Math.random() * maxX));
-      const ry = Math.max(10, Math.floor(Math.random() * maxY));
+      const useCv = document.getElementById('optCv').checked;
+      const rate = (Math.random() * 12 + (useCv ? 18 : 9)).toFixed(1);
+      document.getElementById('macroRate').textContent = `${rate}M honey/s`;
 
-      bee.style.left = rx + 'px';
-      bee.style.top = ry + 'px';
-
-      const scanTokens = document.getElementById('chkTokens').checked;
-      const autoConvert = document.getElementById('chkConvert').checked;
-      const rate = (Math.random() * 14 + (scanTokens ? 18 : 8)).toFixed(1);
-      totalHoney += parseFloat(rate);
-
-      document.getElementById('fieldOverlay').textContent = `Farming • ${rate}M Honey/sec`;
-
-      const events = [
-        `[OpenCV] Precisie-token opgepakt (+Boost)`,
-        `[Pattern] Uitvoeren ${document.getElementById('patternSelect').value}...`,
-        scanTokens ? `[cv2] Inspiring/Haste token herkend (98.4% match)` : `[Input] Standaard loop-cyclus`,
-        autoConvert && Math.random() > 0.72 ? `[Hive] Rugzak vol -> Terug naar hive voor Auto-Convert!` : `[Collector] Pollen verzamelen...`
+      const msgs = [
+        `[cv2] Token match @ (${Math.round(botPos.x*1920)}, ${Math.round(botPos.y*1080)})`,
+        `[path] Uitvoeren ${document.getElementById('bssPattern').value}`,
+        document.getElementById('optConvert').checked && Math.random() > 0.72
+          ? '[hive] Bag 100% -> Terug voor convert'
+          : '[mss] Veld-rand controle OK (0px drift)'
       ];
-      const pick = events[Math.floor(Math.random() * events.length)];
-      logMacro(pick);
+      pushBssLog(msgs[Math.floor(Math.random() * msgs.length)]);
     }
 
-    function logMacro(msg) {
-      const box = document.getElementById('macroLog');
-      box.innerHTML += `<div>${msg}</div>`;
-      if (box.children.length > 40) box.removeChild(box.firstChild);
+    function renderBssField() {
+      const w = bssCanvas.width, h = bssCanvas.height;
+      bssCtx.clearRect(0, 0, w, h);
+      const styles = getComputedStyle(document.documentElement);
+      const acc = styles.getPropertyValue('--accent').trim();
+      const border = styles.getPropertyValue('--border').trim();
+
+      // Grid lines
+      bssCtx.strokeStyle = border;
+      bssCtx.lineWidth = 1;
+      for (let x = 24; x < w; x += 24) {
+        bssCtx.beginPath(); bssCtx.moveTo(x, 0); bssCtx.lineTo(x, h); bssCtx.stroke();
+      }
+      for (let y = 24; y < h; y += 24) {
+        bssCtx.beginPath(); bssCtx.moveTo(0, y); bssCtx.lineTo(w, y); bssCtx.stroke();
+      }
+
+      // Path trail
+      if (trail.length > 1) {
+        bssCtx.strokeStyle = acc;
+        bssCtx.lineWidth = 1.6;
+        bssCtx.beginPath();
+        trail.forEach((p, idx) => {
+          if (idx === 0) bssCtx.moveTo(p.x * w, p.y * h);
+          else bssCtx.lineTo(p.x * w, p.y * h);
+        });
+        bssCtx.stroke();
+      }
+
+      // Bot crosshair
+      const bx = botPos.x * w, by = botPos.y * h;
+      bssCtx.fillStyle = acc;
+      bssCtx.fillRect(bx - 4, by - 4, 8, 8);
+      bssCtx.strokeStyle = acc;
+      bssCtx.beginPath();
+      bssCtx.arc(bx, by, 10, 0, Math.PI * 2);
+      bssCtx.stroke();
+    }
+
+    function pushBssLog(txt) {
+      const box = document.getElementById('bssFeed');
+      box.innerHTML += `<div>${txt}</div>`;
+      if (box.children.length > 35) box.removeChild(box.firstChild);
       box.scrollTop = box.scrollHeight;
     }
 
-    /* =========================
-       INTERACTIEVE BLENDER 3D CANVAS
-    ========================= */
-    const canvas = document.getElementById('blenderCanvas');
-    const ctx = canvas.getContext('2d');
+    resizeBss();
 
-    let rotX = 0.45;
-    let rotY = 0.6;
-    let autoSpin = true;
-    let shadingMode = 'solid'; // 'wire' or 'solid'
-    let currentModelKey = 'tank';
-    let dragging = false;
-    let lastX = 0, lastY = 0;
+    /* ========================
+       03: BLENDER 3D VIEWPORT
+    ======================== */
+    const bCanvas = document.getElementById('blenderCanvas');
+    const bCtx = bCanvas.getContext('2d');
+    let rx = 0.45, ry = 0.65, spin3D = true, mode3D = 'solid', meshKey = 'tank';
+    let drag = false, lx = 0, ly = 0;
 
-    // 3D Modellen (Vertices & Faces)
-    const models = {
+    const meshes = {
       tank: {
-        verts: [
-          // Hull
-          [-1.3, 0.3, -0.8], [1.3, 0.3, -0.8], [1.3, 0.3, 0.8], [-1.3, 0.3, 0.8],
-          [-1.1, -0.25, -0.75], [1.2, -0.25, -0.75], [1.2, -0.25, 0.75], [-1.1, -0.25, 0.75],
-          // Turret
-          [-0.55, -0.25, -0.45], [0.55, -0.25, -0.45], [0.55, -0.25, 0.45], [-0.55, -0.25, 0.45],
-          [-0.4, -0.7, -0.35], [0.4, -0.7, -0.35], [0.4, -0.7, 0.35], [-0.4, -0.7, 0.35],
-          // Barrel tip
-          [1.6, -0.52, -0.07], [1.6, -0.52, 0.07], [1.6, -0.42, 0.07], [1.6, -0.42, -0.07]
+        name: 'medium_tank',
+        info: '20 Verts | 14 Faces',
+        v: [
+          [-1.3,0.3,-0.8],[1.3,0.3,-0.8],[1.3,0.3,0.8],[-1.3,0.3,0.8],
+          [-1.1,-0.25,-0.75],[1.2,-0.25,-0.75],[1.2,-0.25,0.75],[-1.1,-0.25,0.75],
+          [-0.55,-0.25,-0.45],[0.55,-0.25,-0.45],[0.55,-0.25,0.45],[-0.55,-0.25,0.45],
+          [-0.4,-0.7,-0.35],[0.4,-0.7,-0.35],[0.4,-0.7,0.35],[-0.4,-0.7,0.35],
+          [1.6,-0.52,-0.07],[1.6,-0.52,0.07],[1.6,-0.42,0.07],[1.6,-0.42,-0.07]
         ],
-        faces: [
-          [0,1,2,3], [4,5,6,7], [0,1,5,4], [1,2,6,5], [2,3,7,6], [3,0,4,7],
-          [8,9,10,11], [12,13,14,15], [8,9,13,12], [9,10,14,13], [10,11,15,14], [11,8,12,15],
-          [13,16,17,14], [16,17,18,19]
-        ],
-        stats: "20 Verts | 14 Faces (Low-Poly)"
+        f: [
+          [0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],
+          [8,9,10,11],[12,13,14,15],[8,9,13,12],[9,10,14,13],[10,11,15,14],[11,8,12,15],
+          [13,16,17,14],[16,17,18,19]
+        ]
       },
-      hex: {
-        verts: (() => {
-          const v = [];
+      bunker: {
+        name: 'hex_bunker',
+        info: '18 Verts | 15 Faces',
+        v: (() => {
+          const arr = [];
           for (let i = 0; i < 6; i++) {
             const a = (Math.PI / 3) * i;
-            v.push([Math.cos(a) * 1.25, 0.35, Math.sin(a) * 1.25]);
-            v.push([Math.cos(a) * 1.25, -0.05, Math.sin(a) * 1.25]);
+            arr.push([Math.cos(a)*1.25, 0.35, Math.sin(a)*1.25]);
+            arr.push([Math.cos(a)*1.25, -0.05, Math.sin(a)*1.25]);
           }
-          // Bunker top
           for (let i = 0; i < 6; i++) {
             const a = (Math.PI / 3) * i;
-            v.push([Math.cos(a) * 0.65, -0.5, Math.sin(a) * 0.65]);
+            arr.push([Math.cos(a)*0.65, -0.5, Math.sin(a)*0.65]);
           }
-          return v;
+          return arr;
         })(),
-        faces: (() => {
-          const f = [[0,2,4,6,8,10], [1,3,5,7,9,11], [12,13,14,15,16,17]];
+        f: (() => {
+          const arr = [[0,2,4,6,8,10],[1,3,5,7,9,11],[12,13,14,15,16,17]];
           for (let i = 0; i < 6; i++) {
             const n = (i + 1) % 6;
-            f.push([i*2, n*2, n*2+1, i*2+1]);
-            f.push([i*2+1, n*2+1, 12+n, 12+i]);
+            arr.push([i*2, n*2, n*2+1, i*2+1]);
+            arr.push([i*2+1, n*2+1, 12+n, 12+i]);
           }
-          return f;
-        })(),
-        stats: "18 Verts | 15 Faces (Hex Tile)"
+          return arr;
+        })()
       },
-      crystal: {
-        verts: [
-          [0, -1.25, 0],
-          [0.85, 0, 0], [0, 0, 0.85], [-0.85, 0, 0], [0, 0, -0.85],
-          [0, 1.25, 0]
-        ],
-        faces: [
-          [0,1,2], [0,2,3], [0,3,4], [0,4,1],
-          [5,2,1], [5,3,2], [5,4,3], [5,1,4]
-        ],
-        stats: "6 Verts | 8 Faces (Honeydrop)"
+      drop: {
+        name: 'honeydrop_gem',
+        info: '6 Verts | 8 Faces',
+        v: [[0,-1.25,0],[0.85,0,0],[0,0,0.85],[-0.85,0,0],[0,0,-0.85],[0,1.25,0]],
+        f: [[0,1,2],[0,2,3],[0,3,4],[0,4,1],[5,2,1],[5,3,2],[5,4,3],[5,1,4]]
       }
     };
 
-    function setModel(key) {
-      currentModelKey = key;
-      document.getElementById('polyStats').textContent = models[key].stats;
+    function switchMesh(k) {
+      meshKey = k;
+      const m = meshes[k];
+      document.getElementById('vpOverlay').innerHTML = `User Persp<br>Object: ${m.name}<br>${m.info}`;
     }
 
-    function setShading(mode) {
-      shadingMode = mode;
+    function setMode3D(m) { mode3D = m; }
+    function toggleSpin3D() {
+      spin3D = !spin3D;
+      document.getElementById('spinLabel').textContent = `spin: ${spin3D ? 'on' : 'off'}`;
     }
 
-    function toggleSpin() {
-      autoSpin = !autoSpin;
-      document.getElementById('spinBtn').textContent = autoSpin ? '⏸ Auto-Spin' : '▶ Auto-Spin';
+    function resize3D() {
+      bCanvas.width = bCanvas.parentElement.clientWidth;
+      bCanvas.height = 290;
     }
+    window.addEventListener('resize', resize3D);
+    resize3D();
 
-    function resizeCanvas() {
-      const rect = canvas.parentElement.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = 310;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    canvas.addEventListener('mousedown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
-    window.addEventListener('mouseup', () => dragging = false);
+    bCanvas.addEventListener('mousedown', e => { drag = true; lx = e.clientX; ly = e.clientY; });
+    window.addEventListener('mouseup', () => drag = false);
     window.addEventListener('mousemove', e => {
-      if (!dragging) return;
-      rotY += (e.clientX - lastX) * 0.01;
-      rotX += (e.clientY - lastY) * 0.01;
-      lastX = e.clientX;
-      lastY = e.clientY;
+      if (!drag) return;
+      ry += (e.clientX - lx) * 0.01; rx += (e.clientY - ly) * 0.01;
+      lx = e.clientX; ly = e.clientY;
     });
 
-    canvas.addEventListener('touchstart', e => {
-      dragging = true;
-      lastX = e.touches[0].clientX;
-      lastY = e.touches[0].clientY;
-    }, { passive: true });
-    window.addEventListener('touchend', () => dragging = false);
+    bCanvas.addEventListener('touchstart', e => { drag = true; lx = e.touches[0].clientX; ly = e.touches[0].clientY; }, { passive: true });
+    window.addEventListener('touchend', () => drag = false);
     window.addEventListener('touchmove', e => {
-      if (!dragging) return;
-      rotY += (e.touches[0].clientX - lastX) * 0.01;
-      rotX += (e.touches[0].clientY - lastY) * 0.01;
-      lastX = e.touches[0].clientX;
-      lastY = e.touches[0].clientY;
+      if (!drag) return;
+      ry += (e.touches[0].clientX - lx) * 0.01; rx += (e.touches[0].clientY - ly) * 0.01;
+      lx = e.touches[0].clientX; ly = e.touches[0].clientY;
     }, { passive: true });
 
-    function project(v) {
-      let [x, y, z] = v;
-      // Rotate Y
-      let cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-      let x1 = x * cosY - z * sinY;
-      let z1 = z * cosY + x * sinY;
-      // Rotate X
-      let cosX = Math.cos(rotX), sinX = Math.sin(rotX);
-      let y2 = y * cosX - z1 * sinX;
-      let z2 = z1 * cosX + y * sinX;
-
-      const scale = 185 / (z2 + 4.2);
-      return {
-        x: canvas.width / 2 + x1 * scale,
-        y: canvas.height / 2 + y2 * scale,
-        z: z2
-      };
+    function proj(pt) {
+      const [x, y, z] = pt;
+      const cy = Math.cos(ry), sy = Math.sin(ry);
+      const x1 = x * cy - z * sy, z1 = z * cy + x * sy;
+      const cx = Math.cos(rx), sx = Math.sin(rx);
+      const y2 = y * cx - z1 * sx, z2 = z1 * cx + y * sx;
+      const s = 180 / (z2 + 4.3);
+      return { x: bCanvas.width / 2 + x1 * s, y: bCanvas.height / 2 + y2 * s, z: z2 };
     }
 
-    function drawBlender() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function loop3D() {
+      bCtx.clearRect(0, 0, bCanvas.width, bCanvas.height);
+      const styles = getComputedStyle(document.documentElement);
+      const acc = styles.getPropertyValue('--accent').trim();
+      const border = styles.getPropertyValue('--border').trim();
+      const surf = styles.getPropertyValue('--surface-alt').trim();
 
-      // Blender floor grid
-      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-      ctx.lineWidth = 1;
+      // Blender floor grid + X/Y axes
+      bCtx.lineWidth = 1;
       for (let i = -4; i <= 4; i++) {
-        const p1 = project([i * 0.6, 0.5, -2.4]);
-        const p2 = project([i * 0.6, 0.5, 2.4]);
-        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+        bCtx.strokeStyle = i === 0 ? 'rgba(229, 72, 77, 0.55)' : border;
+        const p1 = proj([-2.4, 0.5, i * 0.6]), p2 = proj([2.4, 0.5, i * 0.6]);
+        bCtx.beginPath(); bCtx.moveTo(p1.x, p1.y); bCtx.lineTo(p2.x, p2.y); bCtx.stroke();
 
-        const p3 = project([-2.4, 0.5, i * 0.6]);
-        const p4 = project([2.4, 0.5, i * 0.6]);
-        ctx.beginPath(); ctx.moveTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y); ctx.stroke();
+        bCtx.strokeStyle = i === 0 ? 'rgba(46, 160, 67, 0.55)' : border;
+        const p3 = proj([i * 0.6, 0.5, -2.4]), p4 = proj([i * 0.6, 0.5, 2.4]);
+        bCtx.beginPath(); bCtx.moveTo(p3.x, p3.y); bCtx.lineTo(p4.x, p4.y); bCtx.stroke();
       }
 
-      if (autoSpin && !dragging) rotY += 0.008;
+      if (spin3D && !drag) ry += 0.007;
 
-      const model = models[currentModelKey];
-      const projected = model.verts.map(project);
+      const m = meshes[meshKey];
+      const pts = m.v.map(proj);
+      const faces = m.f.map(f => ({ f, z: f.reduce((s, idx) => s + pts[idx].z, 0) / f.length }))
+                       .sort((a, b) => b.z - a.z);
 
-      // Painter's algorithm sort
-      const sortedFaces = model.faces.map(face => {
-        const avgZ = face.reduce((s, idx) => s + projected[idx].z, 0) / face.length;
-        return { face, avgZ };
-      }).sort((a, b) => b.avgZ - a.avgZ);
-
-      const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#38bdf8';
-
-      sortedFaces.forEach(({ face }, idx) => {
-        ctx.beginPath();
-        face.forEach((vIdx, i) => {
-          const p = projected[vIdx];
-          if (i === 0) ctx.moveTo(p.x, p.y);
-          else ctx.lineTo(p.x, p.y);
+      faces.forEach(({ f }) => {
+        bCtx.beginPath();
+        f.forEach((vi, i) => {
+          if (i === 0) bCtx.moveTo(pts[vi].x, pts[vi].y);
+          else bCtx.lineTo(pts[vi].x, pts[vi].y);
         });
-        ctx.closePath();
+        bCtx.closePath();
 
-        if (shadingMode === 'solid') {
-          const shade = 28 + ((idx * 17) % 35);
-          ctx.fillStyle = currentModelKey === 'crystal'
-            ? 'rgba(250, 204, 21, 0.45)'
-            : `rgba(${shade + 25}, ${shade + 35}, ${shade + 50}, 0.85)`;
-          ctx.fill();
-          ctx.strokeStyle = accentColor;
-          ctx.lineWidth = 1.2;
-          ctx.stroke();
-        } else {
-          ctx.strokeStyle = accentColor;
-          ctx.lineWidth = 1.3;
-          ctx.stroke();
+        if (mode3D === 'solid') {
+          bCtx.fillStyle = surf;
+          bCtx.fill();
         }
+        bCtx.strokeStyle = acc;
+        bCtx.lineWidth = 1.25;
+        bCtx.stroke();
       });
 
-      requestAnimationFrame(drawBlender);
+      requestAnimationFrame(loop3D);
     }
-
-    setModel('tank');
-    drawBlender();
+    loop3D();
   </script>
 </body>
 </html>

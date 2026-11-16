@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — dadaverver2</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand">
+        <span class="brand-marker"></span>
+        dadaverver2
+      </a>
+      <nav class="nav-links">
+        <a href="/index.html">index.html</a>
+        <a href="/devlog.html" class="nav-ext">devlog.html</a>
+        <a href="/contact.html" class="nav-ext">contact.html</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="split-panel">
+      <div class="panel-left">
+        <div class="meta-strip">
+          <span>ERR_CODE: <strong>HTTP_404</strong></span>
+          <span>STATUS: <strong>SECTOR_NOT_FOUND</strong></span>
+        </div>
+        <h1>404 — Deze route bestaat niet.</h1>
+        <p class="page-copy">
+          Het opgevraagde bestand staat niet in de repository. Controleer op typfouten of ga terug naar een werkende pagina.
+        </p>
+
+        <div class="hint-line" id="pathDiag">
+          REQUESTED_PATH: /...
+        </div>
+
+        <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+          <a href="/index.html" class="btn btn-accent">TERUG NAAR INDEX.HTML</a>
+          <a href="/devlog.html" class="btn">OPEN DEVLOG.HTML</a>
+          <a href="/contact.html" class="btn">OPEN CONTACT.HTML</a>
+        </div>
+      </div>
+
+      <div class="panel-right">
+        <div class="tac-toolbar">
+          <span style="font-family:var(--mono); font-size:0.78rem; color:var(--muted);">404_MINIGAME // COLLECT_TOKENS</span>
+          <span style="font-family:var(--mono); font-size:0.78rem;">SCORE: <strong id="snakeScore" style="color:var(--accent)">0</strong></span>
+        </div>
+
+        <canvas id="snakeCanvas" width="300" height="220" style="width:100%; max-width:340px; display:block; margin:0 auto; border:1px solid var(--border); background:var(--bg);"></canvas>
+
+        <!-- Touch D-pad voor iPad / mobiel -->
+        <div class="dpad">
+          <div></div>
+          <button onclick="setDir(0,-1)">↑</button>
+          <div></div>
+          <button onclick="setDir(-1,0)">←</button>
+          <button onclick="setDir(0,1)">↓</button>
+          <button onclick="setDir(1,0)">→</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // error 404</span>
+    <a href="/index.html">home</a>
+  </footer>
+
+  <script>
+    document.getElementById('pathDiag').textContent = `REQUESTED_PATH: ${window.location.pathname} -> ERR: FILE_MISSING`;
+
+    function toggleMode() {
+      const isPaper = document.documentElement.getAttribute('data-mode') === 'paper';
+      if (isPaper) {
+        document.documentElement.removeAttribute('data-mode');
+        document.getElementById('modeToggle').textContent = 'mode: dark';
+      } else {
+        document.documentElement.setAttribute('data-mode', 'paper');
+        document.getElementById('modeToggle').textContent = 'mode: paper';
+      }
+    }
+
+    // Mini Snake
+    const cvs = document.getElementById('snakeCanvas');
+    const c = cvs.getContext('2d');
+    const cell = 15, cols = 20, rows = 14;
+    cvs.width = cols * cell;
+    cvs.height = rows * cell;
+
+    let snake = [{x:10,y:7}, {x:9,y:7}, {x:8,y:7}];
+    let dir = {x:1, y:0}, food = {x:15, y:7}, score = 0;
+
+    function setDir(x, y) {
+      if (dir.x === -x && dir.y === -y) return;
+      dir = {x, y};
+    }
+
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp') { e.preventDefault(); setDir(0,-1); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); setDir(0,1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); setDir(-1,0); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); setDir(1,0); }
+    });
+
+    setInterval(() => {
+      const head = {
+        x: (snake[0].x + dir.x + cols) % cols,
+        y: (snake[0].y + dir.y + rows) % rows
+      };
+
+      if (snake.some(s => s.x === head.x && s.y === head.y)) {
+        snake = [{x:10,y:7}, {x:9,y:7}, {x:8,y:7}];
+        dir = {x:1, y:0};
+        score = 0;
+        document.getElementById('snakeScore').textContent = score;
+      } else {
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+          score++;
+          document.getElementById('snakeScore').textContent = score;
+          food = { x: Math.floor(Math.random()*cols), y: Math.floor(Math.random()*rows) };
+        } else {
+          snake.pop();
+        }
+      }
+
+      const styles = getComputedStyle(document.documentElement);
+      const acc = styles.getPropertyValue('--accent').trim();
+      const txt = styles.getPropertyValue('--text').trim();
+
+      c.clearRect(0, 0, cvs.width, cvs.height);
+      c.fillStyle = acc;
+      c.fillRect(food.x*cell + 2, food.y*cell + 2, cell - 4, cell - 4);
+
+      c.fillStyle = txt;
+      snake.forEach((s, i) => {
+        c.globalAlpha = i === 0 ? 1 : 0.7;
+        c.fillRect(s.x*cell + 1, s.y*cell + 1, cell - 2, cell - 2);
+      });
+      c.globalAlpha = 1;
+    }, 135);
+  </script>
+</body>
+</html>
