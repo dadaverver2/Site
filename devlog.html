@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Devlog & Roadmap // dadaverver2</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --bg-card-hover: #1c222b;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --font-mono: 'Fira Code', 'Cascadia Code', Consolas, monospace;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    [data-theme="blender"] {
+      --accent: #ea7600;
+      --accent-glow: rgba(234, 118, 0, 0.25);
+    }
+
+    [data-theme="bss"] {
+      --accent: #facc15;
+      --accent-glow: rgba(250, 204, 21, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      background-image: radial-gradient(circle at 80% 10%, var(--accent-glow), transparent 35%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      background: rgba(13, 17, 23, 0.85);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+
+    nav {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav a:hover, nav a.active { color: var(--accent); }
+
+    .theme-switcher {
+      display: flex;
+      gap: 0.4rem;
+      background: var(--bg-card);
+      padding: 0.25rem 0.4rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .theme-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .theme-btn.active { border-color: #fff; }
+    .theme-blue { background: #38bdf8; }
+    .theme-orange { background: #ea7600; }
+    .theme-gold { background: #facc15; }
+
+    main {
+      max-width: 1180px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+      flex: 1;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 4vw, 2.8rem);
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .lead {
+      color: var(--text-muted);
+      max-width: 65ch;
+      margin-bottom: 2rem;
+    }
+
+    /* Filter Knoppen */
+    .filter-bar {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .filter-btn {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: #0d1117;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* Kanban Roadmap */
+    .kanban-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    @media (max-width: 900px) {
+      .kanban-grid { grid-template-columns: 1fr; }
+    }
+
+    .kanban-col {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+
+    .col-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.85rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+    }
+
+    .col-count {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: #0d1117;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .task-card {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.95rem;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .task-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+
+    .task-cat {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 5px;
+      margin-bottom: 0.45rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--accent);
+    }
+
+    .task-title {
+      font-weight: 600;
+      font-size: 0.96rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .task-desc {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+    }
+
+    /* Onderste 2 kolommen: Patch Notes + Poll */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .bottom-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      border-left: 2px solid var(--border);
+      padding-left: 1.25rem;
+      margin-left: 0.4rem;
+    }
+
+    .log-entry {
+      position: relative;
+    }
+
+    .log-entry::before {
+      content: "";
+      position: absolute;
+      left: -1.65rem;
+      top: 0.35rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+    }
+
+    .log-meta {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--accent);
+      margin-bottom: 0.2rem;
+    }
+
+    .log-entry h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .log-entry p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    /* Poll */
+    .poll-option {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .poll-option:hover { border-color: var(--accent); }
+    .poll-option.voted { border-color: var(--success); }
+
+    .poll-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.45rem;
+    }
+
+    .poll-bar {
+      height: 7px;
+      background: var(--bg-card);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .poll-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 0.75rem 1.1rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s ease;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo">&lt;<span>dadaverver2</span> /&gt;</a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="devlog.html" class="active">Devlog</a>
+        <a href="contact.html">Contact</a>
+        <div class="theme-switcher" title="Kies accentkleur">
+          <button class="theme-btn theme-blue active" onclick="setTheme('default', this)"></button>
+          <button class="theme-btn theme-orange" onclick="setTheme('blender', this)"></button>
+          <button class="theme-btn theme-gold" onclick="setTheme('bss', this)"></button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="badge">🛠️ Live Roadmap • dadaverver2</div>
+    <h1>Devlog & Roadmap</h1>
+    <p class="lead">
+      Hier houd ik bij waar ik mee bezig ben voor mijn Roblox-game, de Python BSS macro en mijn Blender 3D-projecten. Filter op een project of stem hieronder op de volgende update!
+    </p>
+
+    <!-- FILTERS -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterProject('all', this)">Alle projecten</button>
+      <button class="filter-btn" onclick="filterProject('roblox', this)">🎮 Roblox RTS</button>
+      <button class="filter-btn" onclick="filterProject('bss', this)">🐝 Python BSS Macro</button>
+      <button class="filter-btn" onclick="filterProject('blender', this)">🧊 Blender 3D</button>
+    </div>
+
+    <!-- KANBAN ROADMAP -->
+    <div class="kanban-grid">
+      <div class="kanban-col">
+        <div class="col-header">
+          <span>📋 To-Do / Ideeën</span>
+          <span class="col-count" id="count-todo">0</span>
+        </div>
+        <div class="task-list" id="col-todo"></div>
+      </div>
+
+      <div class="kanban-col">
+        <div class="col-header">
+          <span>⚡ Mee bezig</span>
+          <span class="col-count" id="count-doing">0</span>
+        </div>
+        <div class="task-list" id="col-doing"></div>
+      </div>
+
+      <div class="kanban-col">
+        <div class="col-header">
+          <span>✅ Klaar</span>
+          <span class="col-count" id="count-done">0</span>
+        </div>
+        <div class="task-list" id="col-done"></div>
+      </div>
+    </div>
+
+    <!-- PATCH NOTES + POLL -->
+    <div class="bottom-grid">
+      <div class="card">
+        <h2>📜 Recente Patch Notes</h2>
+        <div class="timeline" id="timeline"></div>
+      </div>
+
+      <div class="card">
+        <h2>🗳️ Waar moet dadaverver2 eerst aan werken?</h2>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.1rem;">
+          Klik op een optie om te stemmen (wordt lokaal opgeslagen).
+        </p>
+        <div id="pollContainer"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Gemaakt door <strong style="color:var(--accent)">dadaverver2</strong> • <a href="index.html" style="color: var(--text-muted);">Terug naar Home</a>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const tasks = [
+      { col: "todo", cat: "roblox", label: "🎮 Roblox RTS", title: "Artillerie & Mist (Fog of War)", desc: "Eenheden kunnen vijanden pas zien als een scout of radar in de buurt is." },
+      { col: "todo", cat: "bss", label: "🐝 BSS Macro", title: "Auto-Planter Timer", desc: "Automatisch planters oogsten en opnieuw plaatsen voor 100% Nectar." },
+      { col: "todo", cat: "blender", label: "🧊 Blender 3D", title: "Modulaire Haven & Schepen", desc: "Low-poly haven gebouwen voor toekomstige zeeslagen." },
+
+      { col: "doing", cat: "roblox", label: "🎮 Roblox RTS", title: "Squad Suppression Systeem", desc: "Soldaten kruipen sneller naar dekking onder zwaar mitrailleurvuur." },
+      { col: "doing", cat: "bss", label: "🐝 BSS Macro", title: "OpenCV Token Herkenning v2", desc: "Snellere detectie van Haste, Focus en Precision tokens zonder CPU-pieken." },
+      { col: "doing", cat: "blender", label: "🧊 Blender 3D", title: "Medium Tank Turret Rig", desc: "Losse koepel exporteren naar .fbx zodat hij in Roblox kan draaien." },
+
+      { col: "done", cat: "roblox", label: "🎮 Roblox RTS", title: "Hex-Grid Sector Verovering", desc: "Sectoren geven nu live Mankracht en Brandstof per seconde." },
+      { col: "done", cat: "bss", label: "🐝 BSS Macro", title: "Discord Webhook Rapport", desc: "Stuurt elk uur een overzicht van Honey/uur en rugzak-conversies." },
+      { col: "done", cat: "blender", label: "🧊 Blender 3D", title: "Basis Terrein Tegels", desc: "Bos, gras, heuvel en loopgraaf hex-tegels geoptimaliseerd (<300 tris)." }
+    ];
+
+    const logs = [
+      { cat: "roblox", date: "Update v0.4.2", title: "Tank-turret draait nu naar doelwit", desc: "CFrame-rotatie in LuaU gefixt zodat tanks netjes op vijandelijke squads richten tijdens het rijden." },
+      { cat: "bss", date: "Macro v1.8", title: "Betere drift-correctie in Pine Tree", desc: "Met mss + OpenCV checkt de macro nu elke 10 seconden of je nog midden in het veld staat." },
+      { cat: "blender", date: "Asset Pack #3", title: "5 nieuwe loopgraaf-variaties klaar", desc: "Geëxporteerd met vertex colors zodat er geen zware textures nodig zijn in Roblox." },
+      { cat: "roblox", date: "Update v0.4.0", title: "Tijdperk Tech Tree toegevoegd", desc: "Spelers kunnen nu Brandstof uitgeven om te upgraden van Oudheid naar WO2 en Modern." }
+    ];
+
+    let currentFilter = 'all';
+
+    function filterProject(cat, btn) {
+      currentFilter = cat;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderBoard();
+      renderLogs();
+    }
+
+    function renderBoard() {
+      const cols = { todo: [], doing: [], done: [] };
+      tasks.filter(t => currentFilter === 'all' || t.cat === currentFilter)
+           .forEach(t => cols[t.col].push(t));
+
+      ['todo', 'doing', 'done'].forEach(key => {
+        const container = document.getElementById(`col-${key}`);
+        document.getElementById(`count-${key}`).textContent = cols[key].length;
+        container.innerHTML = cols[key].map(t => `
+          <div class="task-card">
+            <span class="task-cat">${t.label}</span>
+            <div class="task-title">${t.title}</div>
+            <div class="task-desc">${t.desc}</div>
+          </div>
+        `).join('');
+      });
+    }
+
+    function renderLogs() {
+      const filtered = logs.filter(l => currentFilter === 'all' || l.cat === currentFilter);
+      document.getElementById('timeline').innerHTML = filtered.map(l => `
+        <div class="log-entry">
+          <div class="log-meta">${l.date}</div>
+          <h3>${l.title}</h3>
+          <p>${l.desc}</p>
+        </div>
+      `).join('');
+    }
+
+    // Interactieve Poll
+    const defaultPoll = [
+      { id: 0, text: "🚢 Zeeslagen & Schepen (Roblox)", votes: 14 },
+      { id: 1, text: "🍓 Auto-Boost & Planters (BSS Macro)", votes: 19 },
+      { id: 2, text: "🚁 Helikopters & Luchtaanval (Blender 3D)", votes: 11 }
+    ];
+
+    let pollData = JSON.parse(localStorage.getItem('dadaverver2_poll')) || defaultPoll;
+    let userVotedId = localStorage.getItem('dadaverver2_voted');
+
+    function renderPoll() {
+      const total = pollData.reduce((sum, o) => sum + o.votes, 0);
+      document.getElementById('pollContainer').innerHTML = pollData.map(o => {
+        const pct = Math.round((o.votes / total) * 100);
+        const isVoted = String(o.id) === userVotedId;
+        return `
+          <div class="poll-option ${isVoted ? 'voted' : ''}" onclick="vote(${o.id})">
+            <div class="poll-top">
+              <span>${o.text} ${isVoted ? '✓' : ''}</span>
+              <span style="font-family:var(--font-mono); color:var(--accent)">${pct}%</span>
+            </div>
+            <div class="poll-bar"><div class="poll-fill" style="width:${pct}%"></div></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function vote(id) {
+      if (userVotedId !== null) {
+        showToast("Je hebt al gestemd! Bedankt voor je feedback.");
+        return;
+      }
+      pollData[id].votes++;
+      userVotedId = String(id);
+      localStorage.setItem('dadaverver2_poll', JSON.stringify(pollData));
+      localStorage.setItem('dadaverver2_voted', userVotedId);
+      renderPoll();
+      showToast("Stem opgeslagen! 🎉");
+    }
+
+    function setTheme(theme, btn) {
+      if (theme === 'default') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', theme);
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    renderBoard();
+    renderLogs();
+    renderPoll();
+  </script>
+</body>
+</html>
