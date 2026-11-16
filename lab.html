@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dadaverver2 — lab tools</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand"><span class="brand-marker"></span>dadaverver2</a>
+      <nav class="nav-links">
+        <a href="/index.html">home</a>
+        <a href="/units.html" class="nav-ext">units</a>
+        <a href="/macro.html" class="nav-ext">macro</a>
+        <a href="/lab.html" class="active">lab</a>
+        <a href="/setup.html" class="nav-ext">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="nav-ext">contact</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>SECTION: <strong>MINI_TOOLS</strong></span>
+        <span>ENDPOINT: <strong>/lab</strong></span>
+      </div>
+      <h1>Dev Lab & Calculators.</h1>
+      <p class="page-copy">
+        Drie kleine browser-tooltjes die ik zelf gebruik tijdens het scripten in LuaU, farmen in BSS en modelleren in Blender.
+      </p>
+    </section>
+
+    <section class="ledger">
+      <!-- TOOL 1: HEX TO ROBLOX COLOR3 -->
+      <div class="ledger-item">
+        <div>
+          <div class="ledger-top"><span>TOOL 01 // ROBLOX LUAU</span><span class="status-tag">COLOR3</span></div>
+          <h3 style="margin:0.45rem 0;">Hex naar Color3 Converter</h3>
+          <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+            <input type="color" id="pickCol" value="#ff5500" style="width:52px; padding:2px; height:40px;" oninput="syncHex(this.value)" />
+            <input type="text" id="hexIn" value="#ff5500" oninput="calcColor()" />
+          </div>
+          <pre class="code-block" id="colOut" style="margin-bottom:0.6rem;">Color3.fromRGB(255, 85, 0)</pre>
+          <button class="btn" onclick="copyEl('colOut')">kopieer Color3</button>
+        </div>
+      </div>
+
+      <!-- TOOL 2: BSS HONEY CALCULATOR -->
+      <div class="ledger-item">
+        <div>
+          <div class="ledger-top"><span>TOOL 02 // PYTHON BSS</span><span class="status-tag">HONEY/HR</span></div>
+          <h3 style="margin:0.45rem 0;">BSS Honey/uur Calculator</h3>
+          <div class="macro-bar" style="margin-top:0;">
+            <div class="form-row">
+              <label>Gemaakte Honey (Billions)</label>
+              <input type="number" id="bssHon" value="340" oninput="calcHoney()" />
+            </div>
+            <div class="form-row">
+              <label>Aantal Uren</label>
+              <input type="number" id="bssHrs" value="4" min="0.1" step="0.5" oninput="calcHoney()" />
+            </div>
+          </div>
+          <pre class="code-block" id="honOut" style="margin-bottom:0;">Gemiddelde: 85.0B / uur
+12u nacht-run: 1,020.0B (1.02T)</pre>
+        </div>
+      </div>
+
+      <!-- TOOL 3: BLENDER POLYCOUNT CHECKER -->
+      <div class="ledger-item">
+        <div>
+          <div class="ledger-top"><span>TOOL 03 // BLENDER 3D</span><span class="status-tag">BUDGET</span></div>
+          <h3 style="margin:0.45rem 0;">Low-Poly Budget Checker</h3>
+          <div class="macro-bar" style="margin-top:0;">
+            <div class="form-row">
+              <label>Type Asset</label>
+              <select id="bType" onchange="checkTris()">
+                <option value="400">Infanterie (max 400)</option>
+                <option value="800">Voertuig / Tank (max 800)</option>
+                <option value="300">Hex Terrein Tegel (max 300)</option>
+                <option value="1200">Gebouw / Hoofdkwartier (max 1200)</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Huidige Triangles</label>
+              <input type="number" id="bTris" value="680" oninput="checkTris()" />
+            </div>
+          </div>
+          <div class="hint-line" id="triResult" style="margin-bottom:0;"></div>
+        </div>
+      </div>
+
+      <!-- TOOL 4: TERUG NAAR HOME -->
+      <div class="ledger-item">
+        <div>
+          <div class="ledger-top"><span>INFO // SUGGESTIE</span><span class="status-tag">OPEN</span></div>
+          <h3 style="margin:0.45rem 0;">Mis je een handige tool?</h3>
+          <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0.85rem;">
+            Heb je een idee voor nog een kleine calculator of LuaU/Python snippet? Laat het weten via contact.
+          </p>
+          <a href="/contact.html" class="btn btn-accent">Stuur een idee -&gt;</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // /lab</span>
+    <div style="display:flex; gap:1.25rem;">
+      <a href="/index.html">index.html</a>
+      <a href="/setup.html">setup.html</a>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function toggleMode() {
+      const p = document.documentElement.getAttribute('data-mode') === 'paper';
+      document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
+      document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
+    }
+
+    function syncHex(val) {
+      document.getElementById('hexIn').value = val;
+      calcColor();
+    }
+
+    function calcColor() {
+      let h = document.getElementById('hexIn').value.trim().replace('#', '');
+      if (h.length !== 6 || !/^[0-9a-fA-F]{6}$/.test(h)) return;
+      document.getElementById('pickCol').value = '#' + h;
+      const r = parseInt(h.slice(0, 2), 16);
+      const g = parseInt(h.slice(2, 4), 16);
+      const b = parseInt(h.slice(4, 6), 16);
+      document.getElementById('colOut').textContent = `Color3.fromRGB(${r}, ${g}, ${b})`;
+    }
+
+    function calcHoney() {
+      const b = parseFloat(document.getElementById('bssHon').value) || 0;
+      const h = Math.max(0.1, parseFloat(document.getElementById('bssHrs').value) || 1);
+      const perHr = b / h;
+      const night = perHr * 12;
+      document.getElementById('honOut').textContent =
+        `Gemiddelde: ${perHr.toFixed(1)}B / uur\n12u nacht-run: ${night.toFixed(1)}B (${(night/1000).toFixed(2)}T)`;
+    }
+
+    function checkTris() {
+      const max = parseInt(document.getElementById('bType').value);
+      const cur = parseInt(document.getElementById('bTris').value) || 0;
+      const box = document.getElementById('triResult');
+      if (cur <= max) {
+        box.textContent = `[OK] ${cur}/${max} tris — Prima geoptimaliseerd voor Roblox RTS!`;
+        box.style.borderLeftColor = 'var(--ok)';
+      } else {
+        box.textContent = `[LET OP] ${cur}/${max} tris — Probeer Decimate of verwijder verborgen faces (-${cur - max} tris).`;
+        box.style.borderLeftColor = 'var(--hostile)';
+      }
+    }
+
+    function copyEl(id) {
+      navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+        const t = document.getElementById('toast');
+        t.textContent = '[ok] Gekopieerd naar klembord';
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2200);
+      });
+    }
+
+    calcColor();
+    calcHoney();
+    checkTris();
+  </script>
+</body>
+</html>

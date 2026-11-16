@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dadaverver2 — units wiki</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand"><span class="brand-marker"></span>dadaverver2</a>
+      <nav class="nav-links">
+        <a href="/index.html">home</a>
+        <a href="/units.html" class="active">units</a>
+        <a href="/macro.html" class="nav-ext">macro</a>
+        <a href="/lab.html" class="nav-ext">lab</a>
+        <a href="/setup.html" class="nav-ext">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="nav-ext">contact</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>GAME: <strong>FRONTLINE_EMPIRES</strong></span>
+        <span>ENDPOINT: <strong>/units</strong></span>
+        <span>ENGINE: <strong>ROBLOX LUAU</strong></span>
+      </div>
+      <h1>Eenheden & Tech Tree.</h1>
+      <p class="page-copy">
+        Klik op een eenheid om de exacte stats te inspecteren of test twee squads tegen elkaar in de gevechts-calculator.
+      </p>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterEra('all', this)">ALL_ERAS</button>
+        <button class="filter-btn" onclick="filterEra('Oudheid', this)">OUDHEID</button>
+        <button class="filter-btn" onclick="filterEra('WO2', this)">WO2</button>
+        <button class="filter-btn" onclick="filterEra('Modern', this)">MODERN</button>
+      </div>
+    </section>
+
+    <section class="split-panel">
+      <!-- EENHEDEN LIJST -->
+      <div class="panel-left">
+        <span class="sub-label">// SELECTEER_EENHEID</span>
+        <div id="unitList" style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem;"></div>
+      </div>
+
+      <!-- INSPECTOR -->
+      <div class="panel-right">
+        <span class="sub-label">// UNIT_INSPECTOR</span>
+        <h2 id="uName" style="margin-bottom:0.25rem;">-</h2>
+        <p id="uDesc" style="font-size:0.88rem; color:var(--muted); margin-bottom:1.25rem;">-</p>
+
+        <div class="stat-row">
+          <div class="stat-row-top"><span>HP</span><span id="uHpTxt">0</span></div>
+          <div class="stat-bar"><div class="stat-fill" id="uHpBar"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-row-top"><span>DAMAGE / SEC</span><span id="uDpsTxt">0</span></div>
+          <div class="stat-bar"><div class="stat-fill" id="uDpsBar"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-row-top"><span>SUPPRESSION</span><span id="uSupTxt">0</span></div>
+          <div class="stat-bar"><div class="stat-fill" id="uSupBar"></div></div>
+        </div>
+
+        <table class="spec-table">
+          <tr><td>Tijdperk</td><td id="uEra">-</td></tr>
+          <tr><td>Kosten</td><td id="uCost">-</td></tr>
+          <tr><td>Rol</td><td id="uRole">-</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- 1V1 SIMULATOR -->
+    <section class="split-panel">
+      <div class="panel-left">
+        <span class="sub-label">// 1V1_COMBAT_CALCULATOR</span>
+        <div class="macro-bar">
+          <div class="form-row">
+            <label>Squad A (Aanvaller)</label>
+            <select id="simA"></select>
+          </div>
+          <div class="form-row">
+            <label>Dekking A</label>
+            <select id="covA">
+              <option value="1">Open Veld (0%)</option>
+              <option value="0.65">Lichte Dekking (-35% dmg)</option>
+              <option value="0.45">Loopgraaf (-55% dmg)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="macro-bar">
+          <div class="form-row">
+            <label>Squad B (Verdediger)</label>
+            <select id="simB"></select>
+          </div>
+          <div class="form-row">
+            <label>Dekking B</label>
+            <select id="covB">
+              <option value="0.45">Loopgraaf (-55% dmg)</option>
+              <option value="0.65">Lichte Dekking (-35% dmg)</option>
+              <option value="1">Open Veld (0%)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-accent" onclick="runCombat()">SIMULEER GEVECHT -&gt;</button>
+      </div>
+
+      <div class="panel-right">
+        <span class="sub-label">// COMBAT_LOG</span>
+        <div class="console-feed" id="simLog" style="height:175px;">
+          <div>[LuaU] Kies twee eenheden + dekking en klik op 'Simuleer Gevecht'.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // /units</span>
+    <div style="display:flex; gap:1.25rem;">
+      <a href="/index.html">index.html</a>
+      <a href="/devlog.html">devlog.html</a>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMode() {
+      const p = document.documentElement.getAttribute('data-mode') === 'paper';
+      document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
+      document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
+    }
+
+    const units = [
+      { id: 'musk', name: 'Musketier Squad', era: 'Oudheid', hp: 180, dps: 16, sup: 15, cost: '60 MP', role: 'Basis infanterie', desc: 'Goedkope schutters in formatie. Kwetsbaar in open terrein.' },
+      { id: 'pike', name: 'Piekdragers', era: 'Oudheid', hp: 260, dps: 22, sup: 10, cost: '75 MP', role: 'Frontlinie', desc: 'Houden sectoren vast en vangen eerste klappen op.' },
+      { id: 'rifle', name: 'Rifle Squad', era: 'WO2', hp: 240, dps: 28, sup: 30, cost: '100 MP', role: 'Allround / Capture', desc: 'Veelzijdige squad die snel sectoren verovert en granaten gooit.' },
+      { id: 'mg', name: 'MG-42 Team', era: 'WO2', hp: 160, dps: 36, sup: 85, cost: '110 MP', role: 'Area Denial', desc: 'Onderdrukt hele squads zodat ze niet meer kunnen oprukken.' },
+      { id: 'tank', name: 'Medium Tank', era: 'WO2', hp: 620, dps: 48, sup: 40, cost: '140 MP + 50 Fuel', role: 'Doorbraak', desc: 'Immuun voor klein vuur, negeert lichte dekking.' },
+      { id: 'drone', name: 'AT-Missile / Drone', era: 'Modern', hp: 310, dps: 68, sup: 25, cost: '160 MP + 45 Fuel', role: 'Anti-Armor', desc: 'Schakelt zware tanks op grote afstand uit.' }
+    ];
+
+    let curEra = 'all';
+
+    function filterEra(era, btn) {
+      curEra = era;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderUnits();
+    }
+
+    function renderUnits() {
+      const list = document.getElementById('unitList');
+      const filtered = units.filter(u => curEra === 'all' || u.era === curEra);
+      list.innerHTML = filtered.map(u => `
+        <div class="task-card" style="cursor:pointer;" onclick="inspectUnit('${u.id}')">
+          <span class="task-tag">${u.era}</span>
+          <div class="task-title">${u.name}</div>
+          <div class="task-desc">${u.cost}</div>
+        </div>
+      `).join('');
+    }
+
+    function inspectUnit(id) {
+      const u = units.find(x => x.id === id);
+      document.getElementById('uName').textContent = u.name;
+      document.getElementById('uDesc').textContent = u.desc;
+      document.getElementById('uHpTxt').textContent = u.hp;
+      document.getElementById('uHpBar').style.width = Math.min(100, (u.hp / 650) * 100) + '%';
+      document.getElementById('uDpsTxt').textContent = u.dps;
+      document.getElementById('uDpsBar').style.width = Math.min(100, (u.dps / 75) * 100) + '%';
+      document.getElementById('uSupTxt').textContent = u.sup + '%';
+      document.getElementById('uSupBar').style.width = u.sup + '%';
+      document.getElementById('uEra').textContent = u.era;
+      document.getElementById('uCost').textContent = u.cost;
+      document.getElementById('uRole').textContent = u.role;
+    }
+
+    function populateSims() {
+      const opts = units.map(u => `<option value="${u.id}">${u.name} (${u.era})</option>`).join('');
+      document.getElementById('simA').innerHTML = opts;
+      document.getElementById('simB').innerHTML = opts;
+      document.getElementById('simA').value = 'rifle';
+      document.getElementById('simB').value = 'mg';
+    }
+
+    function runCombat() {
+      const a = { ...units.find(u => u.id === document.getElementById('simA').value) };
+      const b = { ...units.find(u => u.id === document.getElementById('simB').value) };
+      const covA = parseFloat(document.getElementById('covA').value);
+      const covB = parseFloat(document.getElementById('covB').value);
+
+      let hpA = a.hp, hpB = b.hp, sec = 0;
+      const effDpsA = a.dps * covB * (b.sup > 60 && a.id !== 'tank' ? 0.65 : 1);
+      const effDpsB = b.dps * covA * (a.sup > 60 && b.id !== 'tank' ? 0.65 : 1);
+
+      while (hpA > 0 && hpB > 0 && sec < 60) {
+        sec++;
+        hpB -= effDpsA;
+        hpA -= effDpsB;
+      }
+
+      const winner = hpA > hpB ? a.name + ' (A)' : b.name + ' (B)';
+      const rem = Math.max(0, Math.round(Math.max(hpA, hpB)));
+      const log = document.getElementById('simLog');
+      log.innerHTML = `
+        <div>[Sim] ${a.name} vs ${b.name}</div>
+        <div>[Effectieve DPS] A: ${effDpsA.toFixed(1)}/s | B: ${effDpsB.toFixed(1)}/s</div>
+        <div>[Duur] ${sec} seconden</div>
+        <div style="color:var(--accent); font-weight:bold;">[Winnaar] ${winner} met ${rem} HP over!</div>
+      `;
+    }
+
+    renderUnits();
+    inspectUnit('rifle');
+    populateSims();
+  </script>
+</body>
+</html>

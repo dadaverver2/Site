@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dadaverver2 — setup</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand"><span class="brand-marker"></span>dadaverver2</a>
+      <nav class="nav-links">
+        <a href="/index.html">home</a>
+        <a href="/units.html" class="nav-ext">units</a>
+        <a href="/macro.html" class="nav-ext">macro</a>
+        <a href="/lab.html" class="nav-ext">lab</a>
+        <a href="/setup.html" class="active">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="nav-ext">contact</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>OWNER: <strong>dadaverver2</strong></span>
+        <span>ENDPOINT: <strong>/setup</strong></span>
+      </div>
+      <h1>Tools, Stack & Setup.</h1>
+      <p class="page-copy">
+        Overzicht van de programma's, libraries en hardware waarmee ik mijn Roblox-games, Python-scripts en Blender-modellen bouw.
+      </p>
+    </section>
+
+    <section class="split-panel">
+      <div class="panel-left">
+        <span class="sub-label">// SOFTWARE & CODE</span>
+        <table class="spec-table">
+          <tr><td>Code Editor</td><td>VS Code (met Rojo & Python extensies)</td></tr>
+          <tr><td>Game Engine</td><td>Roblox Studio (LuaU)</td></tr>
+          <tr><td>3D Software</td><td>Blender 4.x (Hard-Surface / Low-Poly)</td></tr>
+          <tr><td>Python Libraries</td><td>OpenCV (cv2), mss, PyAutoGUI, discord.py</td></tr>
+          <tr><td>Web Hosting</td><td>GitHub + Cloudflare Pages</td></tr>
+        </table>
+      </div>
+
+      <div class="panel-right">
+        <span class="sub-label">// HARDWARE (VUL EVT. ZELF AAN)</span>
+        <!-- VUL HIER IN: Pas gerust aan naar je echte specs -->
+        <table class="spec-table">
+          <tr><td>Werkstation</td><td>PC / Laptop voor Blender & Roblox</td></tr>
+          <tr><td>Mobiel / Test</td><td>iPad (Safari)</td></tr>
+          <tr><td>Scherm</td><td>1920x1080 @ 100% scaling (BSS Macro)</td></tr>
+          <tr><td>Opslag / Git</td><td>dadaverver2/Site op GitHub</td></tr>
+        </table>
+
+        <ul class="notes-list" style="margin-top:1.25rem;">
+          <li>Deze website draait volledig statisch (pure HTML, CSS & JS) zonder zware frameworks.</li>
+          <li>Elke Git-commit wordt automatisch uitgerold via Cloudflare Pages.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // /setup</span>
+    <div style="display:flex; gap:1.25rem;">
+      <a href="/index.html">index.html</a>
+      <a href="/contact.html">contact.html</a>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMode() {
+      const p = document.documentElement.getAttribute('data-mode') === 'paper';
+      document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
+      document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
+    }
+  </script>
+</body>
+</html>

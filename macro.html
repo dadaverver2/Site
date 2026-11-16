@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dadaverver2 — macro config</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand"><span class="brand-marker"></span>dadaverver2</a>
+      <nav class="nav-links">
+        <a href="/index.html">home</a>
+        <a href="/units.html" class="nav-ext">units</a>
+        <a href="/macro.html" class="active">macro</a>
+        <a href="/lab.html" class="nav-ext">lab</a>
+        <a href="/setup.html" class="nav-ext">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="nav-ext">contact</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>TOOL: <strong>BSS_MACRO_PY</strong></span>
+        <span>ENDPOINT: <strong>/macro</strong></span>
+        <span>FORMAT: <strong>JSON</strong></span>
+      </div>
+      <h1>BSS Macro Configurator.</h1>
+      <p class="page-copy">
+        Stel hieronder je hive, veld en resolutie in. De pagina genereert direct een geldig <code>config.json</code> bestand voor de Python-macro.
+      </p>
+    </section>
+
+    <section class="split-panel">
+      <div class="panel-left">
+        <span class="sub-label">// INSTELLINGEN</span>
+
+        <div class="form-row">
+          <label for="cfgHive">Hive Kleur</label>
+          <select id="cfgHive" onchange="buildConfig()">
+            <option value="blue">Blue Hive (Pine Tree / Bamboo)</option>
+            <option value="red">Red Hive (Pepper / Strawberry)</option>
+            <option value="white">White Hive (Coconut / Spider)</option>
+            <option value="mixed">Mixed / Early-Mid Game</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="cfgField">Hoofdveld</label>
+          <select id="cfgField" onchange="buildConfig()">
+            <option value="pine_tree">Pine Tree Forest</option>
+            <option value="pepper_patch">Pepper Patch</option>
+            <option value="coconut">Coconut Field</option>
+            <option value="strawberry">Strawberry Field</option>
+            <option value="pumpkin">Pumpkin Patch</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="cfgPattern">Loop-patroon</label>
+          <select id="cfgPattern" onchange="buildConfig()">
+            <option value="CornerXSnake">CornerXSnake</option>
+            <option value="e_lol">e_lol_diamond</option>
+            <option value="SpiralBox">SpiralBox</option>
+          </select>
+        </div>
+
+        <div class="macro-bar">
+          <div class="form-row">
+            <label for="cfgRes">Schermresolutie</label>
+            <select id="cfgRes" onchange="buildConfig()">
+              <option value="1920x1080">1920 x 1080 (FHD)</option>
+              <option value="2560x1440">2560 x 1440 (QHD)</option>
+              <option value="1366x768">1366 x 768 (Laptop)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="cfgBag">Convert bij rugzak %</label>
+            <input type="number" id="cfgBag" value="95" min="50" max="100" oninput="buildConfig()" />
+          </div>
+        </div>
+
+        <div class="check-strip">
+          <label><input type="checkbox" id="cfgCv" checked onchange="buildConfig()" /> opencv_token_scan</label>
+          <label><input type="checkbox" id="cfgHook" checked onchange="buildConfig()" /> discord_webhook</label>
+          <label><input type="checkbox" id="cfgPlanter" onchange="buildConfig()" /> auto_planters</label>
+        </div>
+
+        <span class="sub-label" style="margin-top:1.5rem;">// TROUBLESHOOTING</span>
+        <table class="spec-table">
+          <tr><td>Windows Scaling</td><td>Zet op 100% voor exacte OpenCV-coördinaten</td></tr>
+          <tr><td>Installatie</td><td>pip install opencv-python mss pyautogui</td></tr>
+          <tr><td>Drift-fout?</td><td>Controleer of Roblox op volledig scherm staat</td></tr>
+        </table>
+      </div>
+
+      <div class="panel-right">
+        <div class="tac-toolbar">
+          <span class="sub-label" style="margin:0;">// OUTPUT: CONFIG.JSON</span>
+          <div style="display:flex; gap:0.4rem;">
+            <button class="btn" onclick="copyJson()">kopieer</button>
+            <button class="btn btn-accent" onclick="downloadJson()">download .json</button>
+          </div>
+        </div>
+        <pre class="code-block" id="jsonOut"></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // /macro</span>
+    <div style="display:flex; gap:1.25rem;">
+      <a href="/index.html">index.html</a>
+      <a href="/devlog.html">devlog.html</a>
+      <a href="/contact.html">contact.html</a>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function toggleMode() {
+      const p = document.documentElement.getAttribute('data-mode') === 'paper';
+      document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
+      document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
+    }
+
+    function buildConfig() {
+      const [w, h] = document.getElementById('cfgRes').value.split('x').map(Number);
+      const data = {
+        author: "dadaverver2",
+        hive_type: document.getElementById('cfgHive').value,
+        farming: {
+          field: document.getElementById('cfgField').value,
+          pattern: document.getElementById('cfgPattern').value,
+          convert_at_percent: Number(document.getElementById('cfgBag').value) || 95,
+          auto_planters: document.getElementById('cfgPlanter').checked
+        },
+        vision: {
+          resolution: { width: w, height: h },
+          opencv_token_scan: document.getElementById('cfgCv').checked,
+          confidence_threshold: 0.85
+        },
+        notifications: {
+          discord_webhook_enabled: document.getElementById('cfgHook').checked,
+          report_interval_minutes: 60
+        }
+      };
+      document.getElementById('jsonOut').textContent = JSON.stringify(data, null, 2);
+    }
+
+    function copyJson() {
+      navigator.clipboard.writeText(document.getElementById('jsonOut').textContent)
+        .then(() => showToast('config.json gekopieerd'));
+    }
+
+    function downloadJson() {
+      const blob = new Blob([document.getElementById('jsonOut').textContent], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'config.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('config.json gedownload');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = `[ok] ${msg}`;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    buildConfig();
+  </script>
+</body>
+</html>
