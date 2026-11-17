@@ -4,373 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>dadaverver2 — contact</title>
-  <style>
-    :root {
-      --bg: #111113;
-      --surface: #18181b;
-      --surface-alt: #1f1f24;
-      --border: #2c2c33;
-      --border-strong: #44444e;
-      --text: #ededeb;
-      --muted: #8e8e99;
-      --accent: #ff5500;
-      --ok: #2ea043;
-      --grid-dot: rgba(255, 255, 255, 0.06);
-      --mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', Menlo, Consolas, monospace;
-      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
-    [data-mode="paper"] {
-      --bg: #f3f2ed;
-      --surface: #eae8e1;
-      --surface-alt: #e2dfd6;
-      --border: #cbc8be;
-      --border-strong: #9e9b90;
-      --text: #161615;
-      --muted: #5c5b55;
-      --accent: #d93f00;
-      --ok: #1a7f37;
-      --grid-dot: rgba(0, 0, 0, 0.08);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: var(--sans);
-      background-color: var(--bg);
-      background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
-      background-size: 22px 22px;
-      color: var(--text);
-      line-height: 1.55;
-      -webkit-font-smoothing: antialiased;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* TOP STUDIO BAR */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .topbar-inner {
-      max-width: 1220px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 1.25rem;
-      min-height: 52px;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      font-family: var(--mono);
-      font-size: 0.92rem;
-      font-weight: 700;
-      text-decoration: none;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      letter-spacing: -0.02em;
-    }
-
-    .brand-marker {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      background: var(--accent);
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      flex-wrap: wrap;
-    }
-
-    .nav-links a {
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      color: var(--muted);
-      text-decoration: none;
-      padding: 0.35rem 0.65rem;
-      border: 1px solid transparent;
-      transition: all 0.12s;
-    }
-
-    .nav-links a:hover {
-      color: var(--text);
-      border-color: var(--border);
-      background: var(--surface);
-    }
-
-    .nav-links a.nav-ext {
-      color: var(--accent);
-    }
-
-    .nav-links a.active {
-      color: var(--text);
-      border-color: var(--accent);
-      background: var(--surface);
-    }
-
-    .mode-btn {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 0.35rem 0.7rem;
-      cursor: pointer;
-    }
-    .mode-btn:hover { border-color: var(--accent); }
-
-    /* MAIN WRAP */
-    .wrap {
-      max-width: 1220px;
-      width: 100%;
-      margin: 0 auto;
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      background: var(--bg);
-      flex: 1;
-    }
-
-    /* HEADER BLOCK */
-    .page-head {
-      padding: 2.5rem 2rem 2rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .meta-strip {
-      font-family: var(--mono);
-      font-size: 0.76rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 1rem;
-      display: flex;
-      gap: 1.25rem;
-      flex-wrap: wrap;
-    }
-
-    .meta-strip span strong { color: var(--accent); font-weight: 600; }
-
-    h1 {
-      font-size: clamp(2rem, 4vw, 2.9rem);
-      font-weight: 800;
-      line-height: 1.08;
-      letter-spacing: -0.03em;
-      margin-bottom: 0.85rem;
-    }
-
-    .page-copy {
-      color: var(--muted);
-      max-width: 60ch;
-      font-size: 0.98rem;
-    }
-
-    /* SPLIT GRID */
-    .split-panel {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      border-bottom: 1px solid var(--border);
-    }
-
-    @media (max-width: 900px) {
-      .split-panel { grid-template-columns: 1fr; }
-      .panel-right { border-left: none !important; border-top: 1px solid var(--border); }
-    }
-
-    .panel-left {
-      padding: 2rem;
-    }
-
-    .panel-right {
-      border-left: 1px solid var(--border);
-      padding: 2rem;
-      background: var(--surface);
-    }
-
-    .sub-label {
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 1.25rem;
-      display: block;
-    }
-
-    /* FORM */
-    .form-row {
-      margin-bottom: 1.15rem;
-    }
-
-    .form-row label {
-      display: block;
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 0.35rem;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 0.65rem 0.75rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 0.92rem;
-      outline: none;
-      transition: border-color 0.12s;
-    }
-
-    select {
-      font-family: var(--mono);
-      font-size: 0.82rem;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-    }
-
-    textarea {
-      min-height: 135px;
-      resize: vertical;
-    }
-
-    .hint-line {
-      font-family: var(--mono);
-      font-size: 0.76rem;
-      color: var(--muted);
-      border-left: 2px solid var(--accent);
-      background: var(--surface);
-      padding: 0.55rem 0.75rem;
-      margin-bottom: 1.15rem;
-    }
-
-    /* BUTTONS */
-    .btn {
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      padding: 0.45rem 0.85rem;
-      border: 1px solid var(--border-strong);
-      background: var(--bg);
-      color: var(--text);
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color 0.12s;
-    }
-    .btn:hover { border-color: var(--accent); }
-
-    .btn-accent {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-      font-weight: 600;
-      width: 100%;
-      padding: 0.7rem 1rem;
-    }
-    .btn-accent:hover { opacity: 0.92; }
-
-    /* CHANNELS LEDGER */
-    .channel-list {
-      border: 1px solid var(--border);
-      background: var(--bg);
-      margin-bottom: 1.75rem;
-    }
-
-    .channel-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.85rem 1rem;
-      border-bottom: 1px solid var(--border);
-      gap: 0.75rem;
-    }
-    .channel-row:last-child { border-bottom: none; }
-
-    .ch-key {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-
-    .ch-val {
-      font-family: var(--mono);
-      font-size: 0.86rem;
-      font-weight: 600;
-      word-break: break-all;
-      margin-top: 0.15rem;
-    }
-
-    .spec-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: var(--mono);
-      font-size: 0.78rem;
-    }
-
-    .spec-table td {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .spec-table td:first-child {
-      color: var(--muted);
-      width: 42%;
-    }
-
-    /* TOAST */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--bg);
-      border: 1px solid var(--accent);
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      padding: 0.65rem 1rem;
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.2s ease;
-      z-index: 999;
-    }
-    .toast.show { transform: translateY(0); opacity: 1; }
-
-    /* FOOTER */
-    footer {
-      max-width: 1220px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 1.5rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-    footer a { color: var(--text); text-decoration: none; }
-    footer a:hover { color: var(--accent); }
-  </style>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 
@@ -381,12 +15,13 @@
         dadaverver2
       </a>
       <nav class="nav-links">
-        <a href="index.html#roblox">01.roblox</a>
-        <a href="index.html#python">02.bss_macro</a>
-        <a href="index.html#blender">03.blender</a>
-        <a href="index.html#extra">04.lab</a>
-        <a href="devlog.html" class="nav-ext">devlog.html</a>
-        <a href="contact.html" class="active">contact.html</a>
+        <a href="/index.html" class="nav-ext">home</a>
+        <a href="/units.html" class="nav-ext">units</a>
+        <a href="/macro.html" class="nav-ext">macro</a>
+        <a href="/lab.html" class="nav-ext">lab</a>
+        <a href="/setup.html" class="nav-ext">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="active">contact</a>
         <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
       </nav>
     </div>
@@ -453,7 +88,7 @@
           <div class="channel-row">
             <div>
               <div class="ch-key">E-MAIL</div>
-              <div class="ch-val" id="myEmail">jouw-email@voorbeeld.nl</div>
+              <div class="ch-val" id="myEmail">contact@dadaverver2.be.eu.org</div>
             </div>
             <button class="btn" onclick="copyText('myEmail', 'E-mailadres gekopieerd')">kopieer</button>
           </div>
@@ -462,7 +97,7 @@
           <div class="channel-row">
             <div>
               <div class="ch-key">DISCORD</div>
-              <div class="ch-val" id="myDiscord">@jouw_discord_naam</div>
+              <div class="ch-val" id="myDiscord">@_Dalvie_</div>
             </div>
             <button class="btn" onclick="copyText('myDiscord', 'Discord-naam gekopieerd')">kopieer</button>
           </div>
@@ -509,7 +144,7 @@
 
   <script>
     // VUL HIER IN: Jouw e-mailadres waar het formulier naartoe moet openen
-    const TARGET_EMAIL = "jouw-email@voorbeeld.nl";
+    const TARGET_EMAIL = "contact@dadaverver2.be.eu.org";
 
     function toggleMode() {
       const isPaper = document.documentElement.getAttribute('data-mode') === 'paper';
