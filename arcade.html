@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dadaverver2 — arcade</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .game-pane { display: none; }
+    .game-pane.active { display: block; }
+
+    /* DUNGEON GRID */
+    .dung-grid {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 2px;
+      max-width: 420px;
+      margin: 0 auto;
+      background: var(--border);
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+    }
+    .dung-cell {
+      aspect-ratio: 1;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      user-select: none;
+    }
+    .dc-wall { background: var(--surface-alt); color: var(--muted); }
+    .dc-player { background: var(--accent); color: #fff; }
+    .dc-enemy { color: var(--hostile); }
+    .dc-loot { color: var(--warn); }
+    .dc-heal { color: var(--ok); }
+    .dc-exit { background: rgba(46, 160, 67, 0.2); color: var(--ok); }
+
+    /* BALATRO LITE */
+    .bal-hud {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      margin-bottom: 1rem;
+    }
+    .bal-hud div {
+      padding: 0.55rem 0.7rem;
+      border-right: 1px solid var(--border);
+    }
+    .bal-hud div:last-child { border-right: none; }
+    @media (max-width: 650px) {
+      .bal-hud { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .joker-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .joker-chip {
+      border: 1px solid var(--accent);
+      background: var(--surface-alt);
+      padding: 0.35rem 0.65rem;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+    }
+
+    .hand-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(66px, 1fr));
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .play-card {
+      border: 1px solid var(--border-strong);
+      background: var(--bg);
+      padding: 0.75rem 0.35rem;
+      text-align: center;
+      font-family: var(--mono);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.12s, border-color 0.12s;
+    }
+    .play-card:hover { border-color: var(--text); }
+    .play-card.sel {
+      border-color: var(--accent);
+      background: var(--surface-alt);
+      transform: translateY(-8px);
+      box-shadow: 0 4px 0 var(--accent);
+    }
+    .suit-red { color: var(--hostile); }
+    .suit-blk { color: var(--text); }
+    .card-rank { font-size: 1.15rem; font-weight: 800; display: block; }
+    .card-suit { font-size: 1.1rem; }
+
+    .score-calc {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      padding: 0.75rem 1rem;
+      font-family: var(--mono);
+      margin-bottom: 0.85rem;
+    }
+
+    /* MINESWEEPER */
+    .mine-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 2px;
+      max-width: 360px;
+      margin: 0 auto;
+      background: var(--border);
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+    }
+    .mine-cell {
+      aspect-ratio: 1;
+      background: var(--surface-alt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .mine-cell.open { background: var(--bg); cursor: default; }
+    .mine-cell.boom { background: var(--hostile); color: #fff; }
+    .mine-cell.flag { color: var(--accent); }
+
+    /* REFLEX ARENA */
+    .reflex-box {
+      position: relative;
+      height: 260px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      overflow: hidden;
+      cursor: crosshair;
+      user-select: none;
+    }
+    .reflex-target {
+      position: absolute;
+      width: 38px;
+      height: 38px;
+      background: var(--accent);
+      border: 2px solid var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand"><span class="brand-marker"></span>dadaverver2</a>
+      <nav class="nav-links">
+        <a href="/index.html">home</a>
+        <a href="/units.html" class="nav-ext">units</a>
+        <a href="/macro.html" class="nav-ext">macro</a>
+        <a href="/lab.html" class="nav-ext">lab</a>
+        <a href="/arcade.html" class="active">arcade</a>
+        <a href="/setup.html" class="nav-ext">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="nav-ext">contact</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>MODULE: <strong>MINI_ARCADE</strong></span>
+        <span>ENDPOINT: <strong>/arcade</strong></span>
+        <span>INPUT: <strong>TOUCH + KEYBOARD</strong></span>
+      </div>
+      <h1>Dev Arcade.</h1>
+      <p class="page-copy">
+        Kleine browser-games om tussen het coderen door te spelen. Kies een module hieronder.
+      </p>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="openGame('snake', this)">01.SNAKE</button>
+        <button class="filter-btn" onclick="openGame('dungeon', this)">02.DUNGEON</button>
+        <button class="filter-btn" onclick="openGame('balatro', this)">03.BALATRO_LITE</button>
+        <button class="filter-btn" onclick="openGame('mines', this)">04.MINES</button>
+        <button class="filter-btn" onclick="openGame('reflex', this)">05.REFLEX</button>
+      </div>
+    </section>
+
+    <!-- 01. SNAKE -->
+    <section class="game-pane active" id="pane-snake">
+      <div class="split-panel">
+        <div class="panel-left">
+          <span class="sub-label">// 01_SNAKE_TERMINAL</span>
+          <p style="color:var(--muted); margin-bottom:1rem;">
+            Eet de oranje tokens zonder tegen jezelf te botsen. Bestuur met pijltjestoetsen of de D-pad.
+          </p>
+          <div class="tac-stats">
+            <div>SCORE: <strong id="snScore">0</strong></div>
+            <div>BEST: <strong id="snBest" style="color:var(--accent)">0</strong></div>
+            <div>SPEED: <strong id="snSpdLbl">NORM</strong></div>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-accent" onclick="snReset()">Restart</button>
+            <button class="btn" onclick="snToggleSpeed()">Wissel Snelheid</button>
+          </div>
+        </div>
+
+        <div class="panel-right">
+          <canvas id="snCanvas" style="width:100%; max-width:360px; display:block; margin:0 auto; border:1px solid var(--border); background:var(--bg);"></canvas>
+          <div class="dpad">
+            <div></div><button onclick="snDir(0,-1)">↑</button><div></div>
+            <button onclick="snDir(-1,0)">←</button><button onclick="snDir(0,1)">↓</button><button onclick="snDir(1,0)">→</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02. DUNGEON CRAWLER -->
+    <section class="game-pane" id="pane-dungeon">
+      <div class="split-panel">
+        <div class="panel-left">
+          <span class="sub-label">// 02_ASCII_DUNGEON_CRAWLER</span>
+          <div class="tac-stats">
+            <div>FLOOR: <strong id="dgFloor">1</strong></div>
+            <div>HP: <strong id="dgHp" style="color:var(--ok)">20/20</strong></div>
+            <div>ATK: <strong id="dgAtk" style="color:var(--accent)">4</strong></div>
+          </div>
+          <p style="font-family:var(--mono); font-size:0.76rem; color:var(--muted); margin-bottom:0.85rem;">
+            [@] Jij &nbsp; [G/O] Vijand &nbsp; [+] +8 HP &nbsp; [*] +2 ATK &nbsp; [$] +25 Score &nbsp; [&gt;] Trap
+          </p>
+          <div class="console-feed" id="dgLog" style="height:110px; margin-bottom:0.85rem;"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <span style="font-family:var(--mono); font-size:0.82rem;">SCORE: <strong id="dgScore">0</strong></span>
+            <button class="btn btn-accent" onclick="dgNewGame()">Nieuwe Run</button>
+          </div>
+        </div>
+
+        <div class="panel-right">
+          <div class="dung-grid" id="dgGrid"></div>
+          <div class="dpad">
+            <div></div><button onclick="dgMove(0,-1)">↑</button><div></div>
+            <button onclick="dgMove(-1,0)">←</button><button onclick="dgMove(0,1)">↓</button><button onclick="dgMove(1,0)">→</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. BALATRO LITE -->
+    <section class="game-pane" id="pane-balatro">
+      <div style="padding:2rem;">
+        <div class="tac-toolbar">
+          <span class="sub-label" style="margin:0;">// 03_BALATRO_LITE (POKER ROGUELIKE)</span>
+          <button class="btn" onclick="balNewRun()">Nieuwe Run</button>
+        </div>
+
+        <div class="bal-hud">
+          <div>BLIND: <strong id="balRound" style="color:var(--accent)">1</strong></div>
+          <div>SCORE: <strong id="balScore">0</strong> / <strong id="balTarget">300</strong></div>
+          <div>HANDS: <strong id="balHands">4</strong></div>
+          <div>DISCARDS: <strong id="balDisc">3</strong></div>
+        </div>
+
+        <div class="joker-bar" id="balJokers">
+          <span style="font-family:var(--mono); font-size:0.75rem; color:var(--muted);">JOKERS (0/4): Nog geen jokers — versla Blind 1!</span>
+        </div>
+
+        <!-- SHOP MODAL (ALLEEN ZICHTBAAR TUSSEN ROUNDS) -->
+        <div id="balShop" style="display:none; border:1px solid var(--accent); background:var(--surface); padding:1.25rem; margin-bottom:1rem;">
+          <div class="sub-label" style="color:var(--accent);">// BLIND GEHAALD! KIES 1 JOKER VOOR DE VOLGENDE RONDE:</div>
+          <div id="balShopChoices" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;"></div>
+        </div>
+
+        <div class="score-calc">
+          <div>
+            <span style="font-size:0.75rem; color:var(--muted);">GESELECTEERDE HAND:</span><br>
+            <strong id="balHandName" style="color:var(--accent); font-size:1.05rem;">Selecteer 1-5 kaarten</strong>
+          </div>
+          <div style="font-size:1.05rem;">
+            <span id="balChips" style="color:#38bdf8;">0</span> × <span id="balMult" style="color:var(--hostile);">0</span> = <strong id="balPreview">0</strong>
+          </div>
+        </div>
+
+        <div class="hand-row" id="balHand"></div>
+
+        <div style="display:flex; gap:0.65rem; flex-wrap:wrap;">
+          <button class="btn btn-accent" id="balPlayBtn" onclick="balPlay()">PLAY HAND</button>
+          <button class="btn" id="balDiscBtn" onclick="balDiscard()">DISCARD</button>
+          <button class="btn" onclick="balSort('rank')">Sorteer Rang</button>
+          <button class="btn" onclick="balSort('suit')">Sorteer Kleur</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04. MINESWEEPER -->
+    <section class="game-pane" id="pane-mines">
+      <div class="split-panel">
+        <div class="panel-left">
+          <span class="sub-label">// 04_TACTICAL_MINESWEEPER</span>
+          <p style="color:var(--muted); margin-bottom:1rem;">
+            Vind alle mijnen zonder ze te raken. Gebruik de schakelknop hieronder om vlaggen te zetten op telefoon/iPad (of rechtermuisknop op PC).
+          </p>
+          <div class="tac-stats">
+            <div>MINES: <strong id="mnLeft" style="color:var(--accent)">10</strong></div>
+            <div>STATUS: <strong id="mnStatus">ACTIVE</strong></div>
+            <div>SAFE_LEFT: <strong id="mnSafe">71</strong></div>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-accent" id="mnModeBtn" onclick="mnToggleFlagMode()">ACTIE: GRAVEN</button>
+            <button class="btn" onclick="mnInit()">Reset Bord</button>
+          </div>
+        </div>
+
+        <div class="panel-right">
+          <div class="mine-grid" id="mnGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05. REFLEX -->
+    <section class="game-pane" id="pane-reflex">
+      <div style="padding:2rem;">
+        <div class="tac-toolbar">
+          <span class="sub-label" style="margin:0;">// 05_REFLEX_TRAINER (20 SECONDEN)</span>
+          <button class="btn btn-accent" onclick="rfStart()">Start Test</button>
+        </div>
+        <div class="tac-stats" style="max-width:480px;">
+          <div>TIJD: <strong id="rfTime">20.0s</strong></div>
+          <div>RAKEN: <strong id="rfHits" style="color:var(--accent)">0</strong></div>
+          <div>BEST: <strong id="rfBest" style="color:var(--ok)">0</strong></div>
+        </div>
+        <div class="reflex-box" id="rfBox" onmousedown="rfMiss(event)">
+          <div id="rfStartMsg" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--mono); color:var(--muted);">
+            Klik op 'Start Test' en tik zo snel mogelijk op de oranje blokjes.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // /arcade</span>
+    <div style="display:flex; gap:1.25rem;">
+      <a href="/index.html">index.html</a>
+      <a href="/devlog.html">devlog.html</a>
+      <a href="/contact.html">contact.html</a>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMode() {
+      const p = document.documentElement.getAttribute('data-mode') === 'paper';
+      document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
+      document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
+    }
+
+    let currentGame = 'snake';
+    function openGame(id, btn) {
+      currentGame = id;
+      document.querySelectorAll('.game-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById('pane-' + id).classList.add('active');
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    /* ==================== 01. SNAKE ==================== */
+    const snCvs = document.getElementById('snCanvas');
+    const snCtx = snCvs.getContext('2d');
+    const snCell = 16, snCols = 20, snRows = 14;
+    snCvs.width = snCols * snCell; snCvs.height = snRows * snCell;
+
+    let snBody, snVec, snNextVec, snFood, snScoreVal, snTimer, snFast = false;
+    let snBestVal = Number(localStorage.getItem('dadaverver2_sn_best') || 0);
+    document.getElementById('snBest').textContent = snBestVal;
+
+    function snReset() {
+      snBody = [{x:10,y:7},{x:9,y:7},{x:8,y:7}];
+      snVec = {x:1,y:0}; snNextVec = {x:1,y:0};
+      snFood = {x:15,y:7}; snScoreVal = 0;
+      document.getElementById('snScore').textContent = 0;
+      clearInterval(snTimer);
+      snTimer = setInterval(snTick, snFast ? 85 : 130);
+    }
+
+    function snToggleSpeed() {
+      snFast = !snFast;
+      document.getElementById('snSpdLbl').textContent = snFast ? 'FAST' : 'NORM';
+      clearInterval(snTimer);
+      snTimer = setInterval(snTick, snFast ? 85 : 130);
+    }
+
+    function snDir(x, y) {
+      if (snVec.x === -x && snVec.y === -y) return;
+      snNextVec = {x, y};
+    }
+
+    function snTick() {
+      if (currentGame !== 'snake') return;
+      snVec = snNextVec;
+      const head = {
+        x: (snBody[0].x + snVec.x + snCols) % snCols,
+        y: (snBody[0].y + snVec.y + snRows) % snRows
+      };
+      if (snBody.some(s => s.x === head.x && s.y === head.y)) { snReset(); return; }
+      snBody.unshift(head);
+      if (head.x === snFood.x && head.y === snFood.y) {
+        snScoreVal++;
+        document.getElementById('snScore').textContent = snScoreVal;
+        if (snScoreVal > snBestVal) {
+          snBestVal = snScoreVal;
+          localStorage.setItem('dadaverver2_sn_best', snBestVal);
+          document.getElementById('snBest').textContent = snBestVal;
+        }
+        snFood = { x: Math.floor(Math.random()*snCols), y: Math.floor(Math.random()*snRows) };
+      } else {
+        snBody.pop();
+      }
+      const st = getComputedStyle(document.documentElement);
+      snCtx.clearRect(0, 0, snCvs.width, snCvs.height);
+      snCtx.fillStyle = st.getPropertyValue('--accent').trim();
+      snCtx.fillRect(snFood.x*snCell+2, snFood.y*snCell+2, snCell-4, snCell-4);
+      snCtx.fillStyle = st.getPropertyValue('--text').trim();
+      snBody.forEach((s, i) => {
+        snCtx.globalAlpha = i === 0 ? 1 : 0.7;
+        snCtx.fillRect(s.x*snCell+1, s.y*snCell+1, snCell-2, snCell-2);
+      });
+      snCtx.globalAlpha = 1;
+    }
+    snReset();
+
+    /* ==================== 02. DUNGEON ==================== */
+    const dgW = 11, dgH = 9;
+    let dgMap, dgPlayer, dgEnemies, dgItems, dgFloorNum, dgScoreVal, dgDead;
+
+    function dgNewGame() {
+      dgFloorNum = 1; dgScoreVal = 0; dgDead = false;
+      dgPlayer = { x:1, y:1, hp:20, maxHp:20, atk:4 };
+      document.getElementById('dgLog').innerHTML = '';
+      dgLog('[Dungeon] Run gestart. Vind de groene trap [>].');
+      dgGenFloor();
+    }
+
+    function dgGenFloor() {
+      dgMap = Array.from({length: dgH}, (_, y) =>
+        Array.from({length: dgW}, (_, x) => (x===0||y===0||x===dgW-1||y===dgH-1) ? '#' : '.')
+      );
+      // Gegarandeerd vrij pad van (1,1) naar (9,7)
+      const path = new Set(['1,1']);
+      let cx = 1, cy = 1;
+      while (cx < 9 || cy < 7) {
+        if (cx < 9 && (cy === 7 || Math.random() > 0.45)) cx++;
+        else cy++;
+        path.add(`${cx},${cy}`);
+      }
+      for (let y=1; y<dgH-1; y++) {
+        for (let x=1; x<dgW-1; x++) {
+          if (!path.has(`${x},${y}`) && Math.random() < 0.22) dgMap[y][x] = '#';
+        }
+      }
+      dgPlayer.x = 1; dgPlayer.y = 1;
+      dgMap[7][9] = '>';
+
+      const empty = () => {
+        for (let t=0; t<60; t++) {
+          let x = 1 + Math.floor(Math.random()*(dgW-2));
+          let y = 1 + Math.floor(Math.random()*(dgH-2));
+          if (dgMap[y][x] === '.' && !(x===dgPlayer.x && y===dgPlayer.y) &&
+              !dgEnemies.some(e=>e.x===x&&e.y===y) && !dgItems.some(i=>i.x===x&&i.y===y)) return {x,y};
+        }
+        return {x:2,y:2};
+      };
+
+      dgEnemies = []; dgItems = [];
+      const count = 2 + Math.min(4, dgFloorNum);
+      for (let i=0; i<count; i++) {
+        const p = empty();
+        const isOrc = dgFloorNum >= 2 && Math.random() > 0.55;
+        dgEnemies.push({
+          x:p.x, y:p.y,
+          ch: isOrc ? 'O' : 'G',
+          name: isOrc ? 'Orc' : 'Goblin',
+          hp: isOrc ? 10 + dgFloorNum*2 : 6 + dgFloorNum,
+          atk: isOrc ? 3 + Math.floor(dgFloorNum/2) : 2
+        });
+      }
+      const pot = empty(); dgItems.push({x:pot.x, y:pot.y, ch:'+', type:'heal'});
+      if (dgFloorNum % 2 === 1) { const wp = empty(); dgItems.push({x:wp.x, y:wp.y, ch:'*', type:'atk'}); }
+      for (let g=0; g<2; g++) { const gl = empty(); dgItems.push({x:gl.x, y:gl.y, ch:'$', type:'gold'}); }
+
+      dgRender();
+    }
+
+    function dgMove(dx, dy) {
+      if (dgDead) return;
+      const nx = dgPlayer.x + dx, ny = dgPlayer.y + dy;
+      if (dgMap[ny][nx] === '#') return;
+
+      const foeIdx = dgEnemies.findIndex(e => e.x === nx && e.y === ny);
+      if (foeIdx !== -1) {
+        const foe = dgEnemies[foeIdx];
+        foe.hp -= dgPlayer.atk;
+        dgLog(`[Aanval] Je raakt ${foe.name} voor ${dgPlayer.atk} dmg!`);
+        if (foe.hp <= 0) {
+          dgEnemies.splice(foeIdx, 1);
+          dgScoreVal += 15;
+          dgLog(`[Kill] ${foe.name} verslagen (+15 score).`);
+        }
+      } else {
+        dgPlayer.x = nx; dgPlayer.y = ny;
+        const itemIdx = dgItems.findIndex(i => i.x === nx && i.y === ny);
+        if (itemIdx !== -1) {
+          const it = dgItems[itemIdx];
+          dgItems.splice(itemIdx, 1);
+          if (it.type === 'heal') { dgPlayer.hp = Math.min(dgPlayer.maxHp, dgPlayer.hp + 8); dgLog('[Loot] Potion: +8 HP!'); }
+          if (it.type === 'atk') { dgPlayer.atk += 2; dgLog('[Loot] Scherper wapen: +2 ATK!'); }
+          if (it.type === 'gold') { dgScoreVal += 25; dgLog('[Loot] Goud gevonden (+25 score)!'); }
+        }
+        if (dgMap[ny][nx] === '>') {
+          dgFloorNum++;
+          dgScoreVal += 50;
+          dgLog(`[Trap] Afdalen naar Floor ${dgFloorNum} (+50 score)!`);
+          dgGenFloor();
+          return;
+        }
+      }
+
+      // Vijanden beurt
+      dgEnemies.forEach(e => {
+        const dist = Math.abs(e.x - dgPlayer.x) + Math.abs(e.y - dgPlayer.y);
+        if (dist === 1) {
+          dgPlayer.hp -= e.atk;
+          dgLog(`[Schade] ${e.name} slaat je voor ${e.atk} HP!`);
+        } else if (dist <= 4) {
+          const mx = Math.sign(dgPlayer.x - e.x), my = Math.sign(dgPlayer.y - e.y);
+          const tryPos = mx !== 0 && dgFree(e.x + mx, e.y) ? [e.x + mx, e.y]
+                       : (my !== 0 && dgFree(e.x, e.y + my) ? [e.x, e.y + my] : null);
+          if (tryPos) { e.x = tryPos[0]; e.y = tryPos[1]; }
+        }
+      });
+
+      if (dgPlayer.hp <= 0) {
+        dgPlayer.hp = 0; dgDead = true;
+        dgLog('[GAME OVER] Je bent gesneuveld! Klik op Nieuwe Run.');
+      }
+      dgRender();
+    }
+
+    function dgFree(x, y) {
+      return dgMap[y][x] !== '#' && !(dgPlayer.x===x && dgPlayer.y===y) && !dgEnemies.some(e=>e.x===x&&e.y===y);
+    }
+
+    function dgRender() {
+      const g = document.getElementById('dgGrid');
+      g.innerHTML = '';
+      for (let y=0; y<dgH; y++) {
+        for (let x=0; x<dgW; x++) {
+          const d = document.createElement('div');
+          d.className = 'dung-cell';
+          if (dgPlayer.x === x && dgPlayer.y === y) {
+            d.classList.add('dc-player'); d.textContent = '@';
+          } else {
+            const foe = dgEnemies.find(e => e.x === x && e.y === y);
+            const it = dgItems.find(i => i.x === x && i.y === y);
+            if (foe) { d.classList.add('dc-enemy'); d.textContent = foe.ch; }
+            else if (it) { d.classList.add(it.type==='heal'?'dc-heal':'dc-loot'); d.textContent = it.ch; }
+            else if (dgMap[y][x] === '#') { d.classList.add('dc-wall'); d.textContent = '#'; }
+            else if (dgMap[y][x] === '>') { d.classList.add('dc-exit'); d.textContent = '>'; }
+            else { d.textContent = '·'; d.style.color = 'var(--muted)'; }
+          }
+          g.appendChild(d);
+        }
+      }
+      document.getElementById('dgFloor').textContent = dgFloorNum;
+      document.getElementById('dgHp').textContent = `${dgPlayer.hp}/${dgPlayer.maxHp}`;
+      document.getElementById('dgAtk').textContent = dgPlayer.atk;
+      document.getElementById('dgScore').textContent = dgScoreVal;
+    }
+
+    function dgLog(msg) {
+      const box = document.getElementById('dgLog');
+      box.innerHTML += `<div>${msg}</div>`;
+      box.scrollTop = box.scrollHeight;
+    }
+    dgNewGame();
+
+    /* ==================== 03. BALATRO LITE ==================== */
+    const SUITS = ['♠', '♥', '♦', '♣'];
+    const RANKS = [
+      {n:'2',v:2,c:2},{n:'3',v:3,c:3},{n:'4',v:4,c:4},{n:'5',v:5,c:5},
+      {n:'6',v:6,c:6},{n:'7',v:7,c:7},{n:'8',v:8,c:8},{n:'9',v:9,c:9},
+      {n:'10',v:10,c:10},{n:'J',v:11,c:10},{n:'Q',v:12,c:10},{n:'K',v:13,c:10},{n:'A',v:14,c:11}
+    ];
+    const JOKER_POOL = [
+      { id:'dev', name:'Dev Joker', desc:'+4 Mult altijd' },
+      { id:'chip', name:'Overclock', desc:'+45 Chips altijd' },
+      { id:'pair2', name:'Double Pair', desc:'x2 Mult bij Pair / Full House' },
+      { id:'red', name:'Red Suit', desc:'+3 Mult per ♥ / ♦ kaart' },
+      { id:'blk', name:'Black Suit', desc:'+25 Chips per ♠ / ♣ kaart' },
+      { id:'short', name:'Minimalist', desc:'+6 Mult bij <=3 kaarten' }
+    ];
+
+    let balDeck=[], balHandCards=[], balSel=new Set(), balJokersList=[];
+    let balRoundNum=1, balTargetScore=300, balCurScore=0, balHandsLeft=4, balDiscLeft=3, balOver=false;
+
+    function balNewRun() {
+      balRoundNum=1; balTargetScore=300; balJokersList=[]; balOver=false;
+      document.getElementById('balShop').style.display='none';
+      balStartRound();
+    }
+
+    function balStartRound() {
+      balDeck = [];
+      SUITS.forEach(s => RANKS.forEach(r => balDeck.push({ id: r.n+s, rank:r.n, val:r.v, chips:r.c, suit:s })));
+      balDeck.sort(() => Math.random() - 0.5);
+      balHandCards = balDeck.splice(0, 8);
+      balSel.clear();
+      balCurScore = 0; balHandsLeft = 4; balDiscLeft = 3;
+      balRender();
+    }
+
+    function balToggleCard(id) {
+      if (balOver || document.getElementById('balShop').style.display === 'block') return;
+      if (balSel.has(id)) balSel.delete(id);
+      else if (balSel.size < 5) balSel.add(id);
+      balRender();
+    }
+
+    function evalPoker(cards) {
+      if (!cards.length) return { name:'Selecteer 1-5 kaarten', chips:0, mult:0, total:0 };
+      const byRank = {};
+      cards.forEach(c => { byRank[c.val] = byRank[c.val] || []; byRank[c.val].push(c); });
+      const groups = Object.values(byRank).sort((a,b) => b.length - a.length || b[0].val - a[0].val);
+      const isFlush = cards.length === 5 && cards.every(c => c.suit === cards[0].suit);
+      const uVals = [...new Set(cards.map(c => c.val))].sort((a,b) => a - b);
+      const isStraight = cards.length === 5 && uVals.length === 5 &&
+        (uVals[4] - uVals[0] === 4 || JSON.stringify(uVals) === '[2,3,4,5,14]');
+
+      let name = 'High Card', chips = 5, mult = 1, scoring = [groups[0][0]];
+      if (isFlush && isStraight) { name='Straight Flush'; chips=100; mult=8; scoring=cards; }
+      else if (groups[0].length===4) { name='Four of a Kind'; chips=60; mult=7; scoring=groups[0]; }
+      else if (groups[0].length===3 && groups[1]?.length===2) { name='Full House'; chips=40; mult=4; scoring=cards; }
+      else if (isFlush) { name='Flush'; chips=35; mult=4; scoring=cards; }
+      else if (isStraight) { name='Straight'; chips=30; mult=4; scoring=cards; }
+      else if (groups[0].length===3) { name='Three of a Kind'; chips=30; mult=3; scoring=groups[0]; }
+      else if (groups[0].length===2 && groups[1]?.length===2) { name='Two Pair'; chips=20; mult=2; scoring=[...groups[0],...groups[1]]; }
+      else if (groups[0].length===2) { name='Pair'; chips=10; mult=2; scoring=groups[0]; }
+
+      scoring.forEach(c => chips += c.chips);
+
+      balJokersList.forEach(j => {
+        if (j.id==='dev') mult += 4;
+        if (j.id==='chip') chips += 45;
+        if (j.id==='pair2' && ['Pair','Two Pair','Full House'].includes(name)) mult *= 2;
+        if (j.id==='red') mult += scoring.filter(c => c.suit==='♥'||c.suit==='♦').length * 3;
+        if (j.id==='blk') chips += scoring.filter(c => c.suit==='♠'||c.suit==='♣').length * 25;
+        if (j.id==='short' && cards.length <= 3) mult += 6;
+      });
+      return { name, chips, mult, total: chips * mult };
+    }
+
+    function balPlay() {
+      if (balSel.size === 0 || balHandsLeft <= 0 || balOver) return;
+      const chosen = balHandCards.filter(c => balSel.has(c.id));
+      const res = evalPoker(chosen);
+      balCurScore += res.total;
+      balHandsLeft--;
+      balHandCards = balHandCards.filter(c => !balSel.has(c.id));
+      balSel.clear();
+      while (balHandCards.length < 8 && balDeck.length > 0) balHandCards.push(balDeck.pop());
+
+      if (balCurScore >= balTargetScore) {
+        balOpenShop();
+      } else if (balHandsLeft === 0) {
+        balOver = true;
+        document.getElementById('balHandName').textContent = 'GAME OVER — Target niet gehaald!';
+      }
+      balRender();
+    }
+
+    function balDiscard() {
+      if (balSel.size === 0 || balDiscLeft <= 0 || balOver) return;
+      balDiscLeft--;
+      balHandCards = balHandCards.filter(c => !balSel.has(c.id));
+      balSel.clear();
+      while (balHandCards.length < 8 && balDeck.length > 0) balHandCards.push(balDeck.pop());
+      balRender();
+    }
+
+    function balOpenShop() {
+      const avail = JOKER_POOL.filter(j => !balJokersList.some(o => o.id === j.id));
+      if (avail.length === 0 || balJokersList.length >= 4) {
+        balNextBlind(); return;
+      }
+      const picks = avail.sort(() => Math.random() - 0.5).slice(0, 2);
+      const box = document.getElementById('balShopChoices');
+      box.innerHTML = picks.map(j => `
+        <div class="task-card" style="cursor:pointer;" onclick="balPickJoker('${j.id}')">
+          <span class="task-tag">JOKER</span>
+          <div class="task-title">${j.name}</div>
+          <div class="task-desc">${j.desc}</div>
+        </div>
+      `).join('');
+      document.getElementById('balShop').style.display = 'block';
+    }
+
+    function balPickJoker(id) {
+      balJokersList.push(JOKER_POOL.find(j => j.id === id));
+      document.getElementById('balShop').style.display = 'none';
+      balNextBlind();
+    }
+
+    function balNextBlind() {
+      balRoundNum++;
+      balTargetScore = Math.round(balTargetScore * 1.9);
+      balStartRound();
+    }
+
+    function balSort(by) {
+      balHandCards.sort((a,b) => by==='rank' ? b.val - a.val : a.suit.localeCompare(b.suit) || b.val - a.val);
+      balRender();
+    }
+
+    function balRender() {
+      document.getElementById('balRound').textContent = balRoundNum;
+      document.getElementById('balScore').textContent = balCurScore;
+      document.getElementById('balTarget').textContent = balTargetScore;
+      document.getElementById('balHands').textContent = balHandsLeft;
+      document.getElementById('balDisc').textContent = balDiscLeft;
+
+      const jBar = document.getElementById('balJokers');
+      jBar.innerHTML = balJokersList.length
+        ? balJokersList.map(j => `<span class="joker-chip"><strong>${j.name}</strong>: ${j.desc}</span>`).join('')
+        : '<span style="font-family:var(--mono); font-size:0.75rem; color:var(--muted);">JOKERS (0/4): Versla Blind 1 voor je eerste Joker.</span>';
+
+      const chosen = balHandCards.filter(c => balSel.has(c.id));
+      const ev = evalPoker(chosen);
+      if (!balOver) document.getElementById('balHandName').textContent = ev.name;
+      document.getElementById('balChips').textContent = ev.chips;
+      document.getElementById('balMult').textContent = ev.mult;
+      document.getElementById('balPreview').textContent = ev.total;
+
+      document.getElementById('balHand').innerHTML = balHandCards.map(c => {
+        const isRed = c.suit === '♥' || c.suit === '♦';
+        return `
+          <div class="play-card ${balSel.has(c.id)?'sel':''} ${isRed?'suit-red':'suit-blk'}" onclick="balToggleCard('${c.id}')">
+            <span class="card-rank">${c.rank}</span>
+            <span class="card-suit">${c.suit}</span>
+          </div>
+        `;
+      }).join('');
+    }
+    balNewRun();
+
+    /* ==================== 04. MINESWEEPER ==================== */
+    const mnSize = 9, mnTotalMines = 10;
+    let mnBoard, mnFirst, mnOver, mnFlagMode = false;
+
+    function mnInit() {
+      mnBoard = Array.from({length:mnSize}, () => Array.from({length:mnSize}, () => ({m:false, o:false, f:false, n:0})));
+      mnFirst = true; mnOver = false;
+      document.getElementById('mnStatus').textContent = 'ACTIVE';
+      document.getElementById('mnLeft').textContent = mnTotalMines;
+      document.getElementById('mnSafe').textContent = mnSize*mnSize - mnTotalMines;
+      mnRender();
+    }
+
+    function mnToggleFlagMode() {
+      mnFlagMode = !mnFlagMode;
+      document.getElementById('mnModeBtn').textContent = mnFlagMode ? 'ACTIE: VLAGGEN' : 'ACTIE: GRAVEN';
+    }
+
+    function mnPlaceMines(sr, sc) {
+      let placed = 0;
+      while (placed < mnTotalMines) {
+        const r = Math.floor(Math.random()*mnSize), c = Math.floor(Math.random()*mnSize);
+        if (Math.abs(r-sr)<=1 && Math.abs(c-sc)<=1) continue;
+        if (!mnBoard[r][c].m) { mnBoard[r][c].m = true; placed++; }
+      }
+      for (let r=0; r<mnSize; r++) for (let c=0; c<mnSize; c++) {
+        if (mnBoard[r][c].m) continue;
+        let cnt = 0;
+        for (let dr=-1; dr<=1; dr++) for (let dc=-1; dc<=1; dc++) {
+          if (mnBoard[r+dr]?.[c+dc]?.m) cnt++;
+        }
+        mnBoard[r][c].n = cnt;
+      }
+    }
+
+    function mnClick(r, c, forceFlag=false) {
+      if (mnOver) return;
+      const cell = mnBoard[r][c];
+      if (mnFlagMode || forceFlag) {
+        if (cell.o) return;
+        cell.f = !cell.f;
+        mnRender();
+        return;
+      }
+      if (cell.f || cell.o) return;
+      if (mnFirst) { mnPlaceMines(r, c); mnFirst = false; }
+      if (cell.m) {
+        mnOver = true;
+        mnBoard.forEach(row => row.forEach(x => { if (x.m) x.o = true; }));
+        document.getElementById('mnStatus').textContent = 'BOOM!';
+        mnRender();
+        return;
+      }
+      mnFlood(r, c);
+      let openCnt = 0;
+      mnBoard.forEach(row => row.forEach(x => { if (x.o) openCnt++; }));
+      const safeLeft = (mnSize*mnSize - mnTotalMines) - openCnt;
+      document.getElementById('mnSafe').textContent = safeLeft;
+      if (safeLeft === 0) { mnOver = true; document.getElementById('mnStatus').textContent = 'GEWONNEN!'; }
+      mnRender();
+    }
+
+    function mnFlood(r, c) {
+      const cell = mnBoard[r]?.[c];
+      if (!cell || cell.o || cell.f || cell.m) return;
+      cell.o = true;
+      if (cell.n === 0) {
+        for (let dr=-1; dr<=1; dr++) for (let dc=-1; dc<=1; dc++) mnFlood(r+dr, c+dc);
+      }
+    }
+
+    function mnRender() {
+      const g = document.getElementById('mnGrid');
+      g.innerHTML = '';
+      let flags = 0;
+      mnBoard.forEach((row, r) => row.forEach((cell, c) => {
+        if (cell.f) flags++;
+        const d = document.createElement('div');
+        d.className = 'mine-cell' + (cell.o ? ' open' : '') + (cell.o && cell.m ? ' boom' : '') + (cell.f ? ' flag' : '');
+        d.onclick = () => mnClick(r, c);
+        d.oncontextmenu = e => { e.preventDefault(); mnClick(r, c, true); };
+        if (cell.f && !cell.o) d.textContent = '⚑';
+        else if (cell.o && cell.m) d.textContent = '×';
+        else if (cell.o && cell.n > 0) d.textContent = cell.n;
+        g.appendChild(d);
+      }));
+      document.getElementById('mnLeft').textContent = mnTotalMines - flags;
+    }
+    mnInit();
+
+    /* ==================== 05. REFLEX ==================== */
+    let rfActive = false, rfHitsVal = 0, rfTimeLeft = 20, rfInterval;
+    let rfBestVal = Number(localStorage.getItem('dadaverver2_rf_best') || 0);
+    document.getElementById('rfBest').textContent = rfBestVal;
+
+    function rfStart() {
+      rfActive = true; rfHitsVal = 0; rfTimeLeft = 20;
+      document.getElementById('rfHits').textContent = 0;
+      document.getElementById('rfBox').innerHTML = '';
+      rfSpawn();
+      clearInterval(rfInterval);
+      rfInterval = setInterval(() => {
+        rfTimeLeft = Math.max(0, rfTimeLeft - 0.1);
+        document.getElementById('rfTime').textContent = rfTimeLeft.toFixed(1) + 's';
+        if (rfTimeLeft <= 0) {
+          clearInterval(rfInterval);
+          rfActive = false;
+          if (rfHitsVal > rfBestVal) {
+            rfBestVal = rfHitsVal;
+            localStorage.setItem('dadaverver2_rf_best', rfBestVal);
+            document.getElementById('rfBest').textContent = rfBestVal;
+          }
+          document.getElementById('rfBox').innerHTML = `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);">Klaar! Score: ${rfHitsVal} hits</div>`;
+        }
+      }, 100);
+    }
+
+    function rfSpawn() {
+      if (!rfActive) return;
+      const box = document.getElementById('rfBox');
+      box.innerHTML = '';
+      const t = document.createElement('div');
+      t.className = 'reflex-target';
+      t.textContent = '+1';
+      t.style.left = Math.floor(Math.random() * (box.clientWidth - 44)) + 'px';
+      t.style.top = Math.floor(Math.random() * (box.clientHeight - 44)) + 'px';
+      t.onmousedown = e => {
+        e.stopPropagation();
+        rfHitsVal++;
+        document.getElementById('rfHits').textContent = rfHitsVal;
+        rfSpawn();
+      };
+      box.appendChild(t);
+    }
+
+    function rfMiss() {}
+
+    /* KEYBOARD SUPPORT VOOR SNAKE & DUNGEON */
+    window.addEventListener('keydown', e => {
+      if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) return;
+      if (currentGame === 'snake') {
+        e.preventDefault();
+        if (e.key==='ArrowUp') snDir(0,-1);
+        if (e.key==='ArrowDown') snDir(0,1);
+        if (e.key==='ArrowLeft') snDir(-1,0);
+        if (e.key==='ArrowRight') snDir(1,0);
+      } else if (currentGame === 'dungeon') {
+        e.preventDefault();
+        if (e.key==='ArrowUp') dgMove(0,-1);
+        if (e.key==='ArrowDown') dgMove(0,1);
+        if (e.key==='ArrowLeft') dgMove(-1,0);
+        if (e.key==='ArrowRight') dgMove(1,0);
+      }
+    });
+  </script>
+</body>
+</html>
