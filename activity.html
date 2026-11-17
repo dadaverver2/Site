@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dadaverver2 — github activity</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand"><span class="brand-marker"></span>dadaverver2</a>
+      <nav class="nav-links">
+        <a href="/index.html">home</a>
+        <a href="/units.html" class="nav-ext">units</a>
+        <a href="/macro.html" class="nav-ext">macro</a>
+        <a href="/lab.html" class="active">lab</a>
+        <a href="/arcade.html" class="nav-ext">arcade</a>
+        <a href="/setup.html" class="nav-ext">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="nav-ext">contact</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>LAB_MODULE: <strong>05</strong></span>
+        <span>SOURCE: <strong>API.GITHUB.COM</strong></span>
+        <span><a href="/lab.html" style="color:var(--accent); text-decoration:none;">← TERUG NAAR LAB</a></span>
+      </div>
+      <h1>Live GitHub Monitor.</h1>
+      <p class="page-copy">
+        Haalt rechtstreeks via de GitHub API de actuele commits, bestandsgroottes en statistieken van je repository op.
+      </p>
+
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+        <input type="text" id="repoInput" value="dadaverver2/Site" style="max-width:260px; font-family:var(--mono); font-size:0.85rem;" />
+        <button class="btn btn-accent" onclick="loadGithub()">Ververs Data</button>
+      </div>
+    </section>
+
+    <!-- REPO STATS -->
+    <section style="border-bottom:1px solid var(--border); padding:1.5rem 2rem; background:var(--surface);">
+      <div class="tac-stats" style="margin-bottom:0;">
+        <div>STARS: <strong id="ghStars" style="color:var(--accent)">-</strong></div>
+        <div>BRANCH: <strong id="ghBranch">-</strong></div>
+        <div>LAATSTE PUSH: <strong id="ghPush">-</strong></div>
+      </div>
+    </section>
+
+    <!-- COMMITS + BESTANDEN -->
+    <section class="split-panel">
+      <div class="panel-left">
+        <span class="sub-label">// LAATSTE_10_COMMITS</span>
+        <div class="timeline" id="ghCommits">
+          <div style="font-family:var(--mono); font-size:0.82rem; color:var(--muted);">Laden...</div>
+        </div>
+      </div>
+
+      <div class="panel-right">
+        <span class="sub-label">// REPOSITORY_BESTANDEN</span>
+        <div class="channel-list" id="ghFiles" style="margin-bottom:0;">
+          <div style="padding:1rem; font-family:var(--mono); font-size:0.82rem; color:var(--muted);">Laden...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // /activity</span>
+    <a href="/lab.html">terug naar lab.html</a>
+  </footer>
+
+  <script>
+    function toggleMode() {
+      const p = document.documentElement.getAttribute('data-mode') === 'paper';
+      document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
+      document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
+    }
+
+    function esc(str) {
+      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    function fmtDate(iso) {
+      return new Date(iso).toLocaleString('nl-NL', {
+        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    async function loadGithub() {
+      const repo = document.getElementById('repoInput').value.trim();
+      const comBox = document.getElementById('ghCommits');
+      const fileBox = document.getElementById('ghFiles');
+
+      comBox.innerHTML = '<div style="font-family:var(--mono); font-size:0.82rem; color:var(--muted);">Commits ophalen...</div>';
+      fileBox.innerHTML = '<div style="padding:1rem; font-family:var(--mono); font-size:0.82rem; color:var(--muted);">Bestanden ophalen...</div>';
+
+      try {
+        const [repoRes, comRes, contRes] = await Promise.all([
+          fetch(`https://api.github.com/repos/${repo}`),
+          fetch(`https://api.github.com/repos/${repo}/commits?per_page=10`),
+          fetch(`https://api.github.com/repos/${repo}/contents`)
+        ]);
+
+        if (!repoRes.ok) throw new Error(`GitHub fout (${repoRes.status}) — controleer naam of API-limiet.`);
+
+        const repoData = await repoRes.json();
+        const commits = await comRes.json();
+        const contents = await contRes.json();
+
+        document.getElementById('ghStars').textContent = repoData.stargazers_count ?? 0;
+        document.getElementById('ghBranch').textContent = repoData.default_branch || 'main';
+        document.getElementById('ghPush').textContent = repoData.pushed_at ? fmtDate(repoData.pushed_at) : '-';
+
+        comBox.innerHTML = commits.map(c => `
+          <div class="log-entry">
+            <div class="log-meta">${esc(c.sha.slice(0, 7))} // ${fmtDate(c.commit.author.date)}</div>
+            <h3><a href="${esc(c.html_url)}" target="_blank" rel="noopener" style="color:var(--text); text-decoration:none;">${esc(c.commit.message.split('\n')[0])} ↗</a></h3>
+            <p>door ${esc(c.commit.author.name)}</p>
+          </div>
+        `).join('');
+
+        const sorted = [...contents].sort((a, b) => (a.type === b.type ? a.name.localeCompare(b.name) : a.type === 'dir' ? -1 : 1));
+        fileBox.innerHTML = sorted.map(f => {
+          const kb = f.type === 'dir' ? 'DIR' : `${(f.size / 1024).toFixed(1)} KB`;
+          return `
+            <div class="channel-row">
+              <div>
+                <div class="ch-key">${esc(f.type)} // ${kb}</div>
+                <div class="ch-val">${esc(f.name)}</div>
+              </div>
+              <a class="btn" href="${esc(f.html_url)}" target="_blank" rel="noopener">bekijk ↗</a>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        const msg = `<div style="font-family:var(--mono); font-size:0.82rem; color:var(--hostile); padding:0.75rem;">[ERR] ${esc(err.message)}</div>`;
+        comBox.innerHTML = msg;
+        fileBox.innerHTML = msg;
+      }
+    }
+
+    loadGithub();
+  </script>
+</body>
+</html>

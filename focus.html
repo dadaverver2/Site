@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dadaverver2 — focus mode</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .timer-big {
+      font-family: var(--mono);
+      font-size: clamp(3rem, 8vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin: 1rem 0;
+      color: var(--accent);
+    }
+    .todo-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      margin-bottom: 0.45rem;
+      font-size: 0.88rem;
+      gap: 0.5rem;
+    }
+    .todo-item.done span { text-decoration: line-through; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand"><span class="brand-marker"></span>dadaverver2</a>
+      <nav class="nav-links">
+        <a href="/index.html">home</a>
+        <a href="/units.html" class="nav-ext">units</a>
+        <a href="/macro.html" class="nav-ext">macro</a>
+        <a href="/lab.html" class="active">lab</a>
+        <a href="/arcade.html" class="nav-ext">arcade</a>
+        <a href="/setup.html" class="nav-ext">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="nav-ext">contact</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>LAB_MODULE: <strong>02</strong></span>
+        <span>AUDIO: <strong>WEB_AUDIO_API</strong></span>
+        <span><a href="/lab.html" style="color:var(--accent); text-decoration:none;">← TERUG NAAR LAB</a></span>
+      </div>
+      <h1>Dev Focus & Ambient Synth.</h1>
+      <p class="page-copy">
+        Pomodoro-timer en procedureel gegenereerd achtergrondgeluid voor tijdens het programmeren of modelleren in Blender.
+      </p>
+    </section>
+
+    <section class="split-panel">
+      <!-- POMODORO -->
+      <div class="panel-left">
+        <span class="sub-label">// POMODORO_TIMER</span>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="setTimer(25, this)">Focus (25m)</button>
+          <button class="filter-btn" onclick="setTimer(5, this)">Korte Pauze (5m)</button>
+          <button class="filter-btn" onclick="setTimer(15, this)">Lange Pauze (15m)</button>
+        </div>
+
+        <div class="timer-big" id="timerDisplay">25:00</div>
+
+        <div style="display:flex; gap:0.5rem; margin-bottom:2rem;">
+          <button class="btn btn-accent" id="timerBtn" onclick="toggleTimer()">Start Sessie</button>
+          <button class="btn" onclick="resetTimer()">Reset</button>
+        </div>
+
+        <span class="sub-label">// AMBIENT_AUDIO_SYNTH (LIVE GEGENEREERD)</span>
+        <div class="channel-list" style="margin-bottom:0.85rem;">
+          <div class="channel-row">
+            <div>
+              <div class="ch-key">CH 01 // NOISE</div>
+              <div class="ch-val">Zachte Regen (Lowpass)</div>
+            </div>
+            <button class="btn" id="btnRain" onclick="toggleSound('rain')">OFF</button>
+          </div>
+          <div class="channel-row">
+            <div>
+              <div class="ch-key">CH 02 // SYNTH</div>
+              <div class="ch-val">Diepe Ruimte Drone</div>
+            </div>
+            <button class="btn" id="btnDrone" onclick="toggleSound('drone')">OFF</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Master Volume</label>
+          <input type="range" id="volRange" min="0" max="1" step="0.05" value="0.35" oninput="updateVol(this.value)" />
+        </div>
+      </div>
+
+      <!-- TAKENLIJST -->
+      <div class="panel-right">
+        <span class="sub-label">// SESSIE_TAKEN (LOKAAL OPGESLAGEN)</span>
+        <div style="display:flex; gap:0.45rem; margin-bottom:1rem;">
+          <input type="text" id="todoIn" placeholder="Nieuwe dev-taak (bijv. Fix LuaU pathing)..." onkeydown="if(event.key==='Enter') addTodo()" />
+          <button class="btn btn-accent" onclick="addTodo()">+</button>
+        </div>
+        <div id="todoList"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // /focus</span>
+    <a href="/lab.html">terug naar lab.html</a>
+  </footer>
+
+  <script>
+    function toggleMode() {
+      const p = document.documentElement.getAttribute('data-mode') === 'paper';
+      document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
+      document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
+    }
+
+    // POMODORO
+    let baseMins = 25, secsLeft = 25 * 60, tInt = null, running = false;
+
+    function setTimer(m, btn) {
+      baseMins = m;
+      running = false; clearInterval(tInt);
+      document.getElementById('timerBtn').textContent = 'Start Sessie';
+      secsLeft = m * 60;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderTimer();
+    }
+
+    function toggleTimer() {
+      if (running) {
+        running = false; clearInterval(tInt);
+        document.getElementById('timerBtn').textContent = 'Hervat';
+      } else {
+        running = true;
+        document.getElementById('timerBtn').textContent = 'Pauzeer';
+        tInt = setInterval(() => {
+          secsLeft--;
+          renderTimer();
+          if (secsLeft <= 0) {
+            clearInterval(tInt); running = false;
+            document.getElementById('timerBtn').textContent = 'Klaar!';
+            playBeep();
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() { setTimer(baseMins, null); }
+
+    function renderTimer() {
+      const m = String(Math.floor(secsLeft / 60)).padStart(2, '0');
+      const s = String(secsLeft % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+      document.title = `${m}:${s} — dadaverver2 focus`;
+    }
+
+    // WEB AUDIO SYNTH
+    let actx = null, masterGain = null, nodes = { rain: null, drone: null };
+
+    function ensureAudio() {
+      if (!actx) {
+        actx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = actx.createGain();
+        masterGain.gain.value = parseFloat(document.getElementById('volRange').value);
+        masterGain.connect(actx.destination);
+      }
+      if (actx.state === 'suspended') actx.resume();
+    }
+
+    function updateVol(v) {
+      if (masterGain) masterGain.gain.value = parseFloat(v);
+    }
+
+    function playBeep() {
+      ensureAudio();
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.frequency.value = 523.25;
+      g.gain.setValueAtTime(0.3, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.6);
+      o.connect(g); g.connect(masterGain);
+      o.start(); o.stop(actx.currentTime + 0.6);
+    }
+
+    function toggleSound(type) {
+      ensureAudio();
+      if (nodes[type]) {
+        nodes[type].stop();
+        nodes[type] = null;
+        document.getElementById(type === 'rain' ? 'btnRain' : 'btnDrone').textContent = 'OFF';
+        document.getElementById(type === 'rain' ? 'btnRain' : 'btnDrone').classList.remove('btn-accent');
+        return;
+      }
+
+      if (type === 'rain') {
+        const buf = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate);
+        const data = buf.getChannelData(0);
+        let last = 0;
+        for (let i = 0; i < data.length; i++) {
+          const white = Math.random() * 2 - 1;
+          last = (last + 0.04 * white) / 1.04;
+          data[i] = last * 3.5;
+        }
+        const src = actx.createBufferSource();
+        src.buffer = buf; src.loop = true;
+        const filt = actx.createBiquadFilter();
+        filt.type = 'lowpass'; filt.frequency.value = 650;
+        const g = actx.createGain(); g.gain.value = 0.7;
+        src.connect(filt); filt.connect(g); g.connect(masterGain);
+        src.start();
+        nodes.rain = src;
+        document.getElementById('btnRain').textContent = 'ON';
+        document.getElementById('btnRain').classList.add('btn-accent');
+      } else {
+        const o1 = actx.createOscillator(), o2 = actx.createOscillator();
+        o1.type = 'triangle'; o1.frequency.value = 110;
+        o2.type = 'sine'; o2.frequency.value = 164.81;
+        const filt = actx.createBiquadFilter();
+        filt.type = 'lowpass'; filt.frequency.value = 320;
+        const g = actx.createGain(); g.gain.value = 0.25;
+        o1.connect(filt); o2.connect(filt); filt.connect(g); g.connect(masterGain);
+        o1.start(); o2.start();
+        nodes.drone = { stop: () => { o1.stop(); o2.stop(); } };
+        document.getElementById('btnDrone').textContent = 'ON';
+        document.getElementById('btnDrone').classList.add('btn-accent');
+      }
+    }
+
+    // TODOS
+    let todos = JSON.parse(localStorage.getItem('dadaverver2_todos')) || [
+      { text: 'Blender: Turret origin centreren', done: false },
+      { text: 'BSS Macro: OpenCV threshold checken', done: true }
+    ];
+
+    function renderTodos() {
+      localStorage.setItem('dadaverver2_todos', JSON.stringify(todos));
+      document.getElementById('todoList').innerHTML = todos.map((t, i) => `
+        <div class="todo-item ${t.done ? 'done' : ''}">
+          <span onclick="toggleTodo(${i})" style="cursor:pointer; flex:1;">[${t.done ? 'x' : ' '}] ${t.text.replace(/</g,'&lt;')}</span>
+          <button class="cmd-chip" onclick="delTodo(${i})">del</button>
+        </div>
+      `).join('');
+    }
+    function addTodo() {
+      const inp = document.getElementById('todoIn');
+      if (!inp.value.trim()) return;
+      todos.unshift({ text: inp.value.trim(), done: false });
+      inp.value = '';
+      renderTodos();
+    }
+    function toggleTodo(i) { todos[i].done = !todos[i].done; renderTodos(); }
+    function delTodo(i) { todos.splice(i, 1); renderTodos(); }
+    renderTodos();
+  </script>
+</body>
+</html>

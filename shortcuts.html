@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dadaverver2 — shortcuts</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    kbd {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.2rem 0.45rem;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-alt);
+      color: var(--accent);
+    }
+    .key-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+    }
+    .key-row:hover { background: var(--surface); }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand"><span class="brand-marker"></span>dadaverver2</a>
+      <nav class="nav-links">
+        <a href="/index.html">home</a>
+        <a href="/units.html" class="nav-ext">units</a>
+        <a href="/macro.html" class="nav-ext">macro</a>
+        <a href="/lab.html" class="active">lab</a>
+        <a href="/arcade.html" class="nav-ext">arcade</a>
+        <a href="/setup.html" class="nav-ext">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="nav-ext">contact</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>LAB_MODULE: <strong>03</strong></span>
+        <span>DOCS: <strong>SHORTCUTS</strong></span>
+        <span><a href="/lab.html" style="color:var(--accent); text-decoration:none;">← TERUG NAAR LAB</a></span>
+      </div>
+      <h1>Shortcut Cheat Sheet.</h1>
+      <p class="page-copy">
+        Zoek snel een sneltoets voor Blender 4.x, Roblox Studio of VS Code.
+      </p>
+
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+        <input type="text" id="keySearch" placeholder="Zoek actie of toets (bijv. bevel, extrude, play)..." style="max-width:340px;" oninput="renderKeys()" />
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="setCat('all', this)">ALL</button>
+          <button class="filter-btn" onclick="setCat('blender', this)">BLENDER</button>
+          <button class="filter-btn" onclick="setCat('roblox', this)">ROBLOX_STUDIO</button>
+          <button class="filter-btn" onclick="setCat('vscode', this)">VSCODE</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="keyList"></section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // /shortcuts</span>
+    <a href="/lab.html">terug naar lab.html</a>
+  </footer>
+
+  <script>
+    function toggleMode() {
+      const p = document.documentElement.getAttribute('data-mode') === 'paper';
+      document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
+      document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
+    }
+
+    const keys = [
+      { cat:'blender', key:'G / R / S', desc:'Move (Grab) / Rotate / Scale (voeg X, Y of Z toe voor as)' },
+      { cat:'blender', key:'E', desc:'Extrude geselecteerde faces of edges' },
+      { cat:'blender', key:'I', desc:'Inset Faces (handig voor ramen/luiken)' },
+      { cat:'blender', key:'Ctrl + B', desc:'Bevel randen (scroll muiswiel voor extra segmenten)' },
+      { cat:'blender', key:'Ctrl + R', desc:'Loop Cut toevoegen op een mesh' },
+      { cat:'blender', key:'Tab', desc:'Wisselen tussen Object Mode en Edit Mode' },
+      { cat:'blender', key:'Shift + D', desc:'Object of selectie dupliceren' },
+      { cat:'blender', key:'M', desc:'Merge Vertices (At Center / By Distance)' },
+      { cat:'blender', key:'Alt + Z', desc:'X-Ray modus aan/uit zetten' },
+      { cat:'blender', key:'/', desc:'Isolate View (alleen geselecteerde mesh tonen)' },
+
+      { cat:'roblox', key:'Ctrl + 1..4', desc:'Select / Move / Scale / Rotate tool kiezen' },
+      { cat:'roblox', key:'Ctrl + D', desc:'Part of Model op exact dezelfde plek dupliceren' },
+      { cat:'roblox', key:'Ctrl + G / U', desc:'Selectie groeperen als Model / Ungroup' },
+      { cat:'roblox', key:'F', desc:'Camera scherpstellen op geselecteerd object' },
+      { cat:'roblox', key:'F5 / Shift+F5', desc:'Playtest starten / stoppen' },
+      { cat:'roblox', key:'Ctrl + Shift + F', desc:'Zoeken door alle LuaU scripts in de game' },
+
+      { cat:'vscode', key:'Ctrl + P', desc:'Snel een bestand openen in je project' },
+      { cat:'vscode', key:'Ctrl + /', desc:'Regel uitcommentariëren (# of --)' },
+      { cat:'vscode', key:'Ctrl + D', desc:'Volgende identieke woord ook selecteren (multi-cursor)' },
+      { cat:'vscode', key:'Alt + ↑ / ↓', desc:'Hele regel code omhoog of omlaag verplaatsen' }
+    ];
+
+    let curCat = 'all';
+    function setCat(c, btn) {
+      curCat = c;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderKeys();
+    }
+
+    function renderKeys() {
+      const q = document.getElementById('keySearch').value.trim().toLowerCase();
+      const filtered = keys.filter(k =>
+        (curCat === 'all' || k.cat === curCat) &&
+        (k.key.toLowerCase().includes(q) || k.desc.toLowerCase().includes(q) || k.cat.includes(q))
+      );
+      document.getElementById('keyList').innerHTML = filtered.length
+        ? filtered.map(k => `
+          <div class="key-row">
+            <div>
+              <span style="font-family:var(--mono); font-size:0.7rem; color:var(--muted); text-transform:uppercase;">[${k.cat}]</span>
+              <div style="font-size:0.92rem;">${k.desc}</div>
+            </div>
+            <kbd>${k.key}</kbd>
+          </div>`).join('')
+        : `<div style="padding:2rem; font-family:var(--mono); color:var(--muted);">Geen sneltoetsen gevonden voor "${q.replace(/</g,'&lt;')}".</div>`;
+    }
+    renderKeys();
+  </script>
+</body>
+</html>

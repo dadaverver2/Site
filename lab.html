@@ -16,6 +16,7 @@
         <a href="/units.html" class="nav-ext">units</a>
         <a href="/macro.html" class="nav-ext">macro</a>
         <a href="/lab.html" class="active">lab</a>
+        <a href="/arcade.html" class="nav-ext">arcade</a>
         <a href="/setup.html" class="nav-ext">setup</a>
         <a href="/devlog.html" class="nav-ext">devlog</a>
         <a href="/contact.html" class="nav-ext">contact</a>
@@ -27,20 +28,88 @@
   <main class="wrap">
     <section class="page-head">
       <div class="meta-strip">
-        <span>SECTION: <strong>MINI_TOOLS</strong></span>
+        <span>SECTION: <strong>DEV_LAB</strong></span>
         <span>ENDPOINT: <strong>/lab</strong></span>
+        <span>MODULES: <strong>05 APPS + 03 CALCS</strong></span>
       </div>
-      <h1>Dev Lab & Calculators.</h1>
+      <h1>Dev Lab & Tools.</h1>
       <p class="page-copy">
-        Drie kleine browser-tooltjes die ik zelf gebruik tijdens het scripten in LuaU, farmen in BSS en modelleren in Blender.
+        Al mijn losse tools, editors en calculators verzameld op één plek. Klik op een module hieronder om hem te openen.
       </p>
     </section>
 
+    <!-- SUB-PAGINA MODULES -->
+    <section class="sec-head">
+      <div class="sec-title"><span class="sec-num">01</span><h2>Lab Modules (Volledige Tools)</h2></div>
+      <span class="sec-sub">losse pagina's onder /lab</span>
+    </section>
+
     <section class="ledger">
-      <!-- TOOL 1: HEX TO ROBLOX COLOR3 -->
       <div class="ledger-item">
         <div>
-          <div class="ledger-top"><span>TOOL 01 // ROBLOX LUAU</span><span class="status-tag">COLOR3</span></div>
+          <div class="ledger-top"><span>MODULE 01 // ROBLOX STUDIO</span><span class="status-tag">MAP.HTML</span></div>
+          <h3 style="margin:0.45rem 0 0.25rem;">RTS Map Editor -> LuaU</h3>
+          <p style="font-size:0.88rem; color:var(--muted);">Teken een 10x10 strategiekaart (bos, loopgraven, water, spawns) en exporteer direct als LuaU-tabel.</p>
+        </div>
+        <div><a href="/map.html" class="btn btn-accent">Open Map Editor -&gt;</a></div>
+      </div>
+
+      <div class="ledger-item">
+        <div>
+          <div class="ledger-top"><span>MODULE 02 // PRODUCTIVITEIT</span><span class="status-tag">FOCUS.HTML</span></div>
+          <h3 style="margin:0.45rem 0 0.25rem;">Pomodoro & Ambient Synth</h3>
+          <p style="font-size:0.88rem; color:var(--muted);">25/5 focus-timer, lokale takenlijst en live gegenereerd regen/synth-geluid zonder MP3's.</p>
+        </div>
+        <div><a href="/focus.html" class="btn btn-accent">Open Focus Mode -&gt;</a></div>
+      </div>
+
+      <div class="ledger-item">
+        <div>
+          <div class="ledger-top"><span>MODULE 03 // REFERENTIE</span><span class="status-tag">SHORTCUTS.HTML</span></div>
+          <h3 style="margin:0.45rem 0 0.25rem;">Blender, Studio & VS Code Keys</h3>
+          <p style="font-size:0.88rem; color:var(--muted);">Doorzoekbare sneltoetsen-gids voor modelleren in Blender, Roblox Studio en coderen.</p>
+        </div>
+        <div><a href="/shortcuts.html" class="btn btn-accent">Open Cheat Sheet -&gt;</a></div>
+      </div>
+
+      <div class="ledger-item">
+        <div>
+          <div class="ledger-top"><span>MODULE 04 // AUDIO SYNTH</span><span class="status-tag">SFX.HTML</span></div>
+          <h3 style="margin:0.45rem 0 0.25rem;">8-Bit SFX & Beat Sequencer</h3>
+          <p style="font-size:0.88rem; color:var(--muted);">Maak 16-stappen retro beats of genereer game-geluidseffecten en download ze als .WAV.</p>
+        </div>
+        <div><a href="/sfx.html" class="btn btn-accent">Open SFX Maker -&gt;</a></div>
+      </div>
+
+      <div class="ledger-item">
+        <div>
+          <div class="ledger-top"><span>MODULE 05 // GITHUB API</span><span class="status-tag">ACTIVITY.HTML</span></div>
+          <h3 style="margin:0.45rem 0 0.25rem;">Live Repo & Commit Monitor</h3>
+          <p style="font-size:0.88rem; color:var(--muted);">Haalt rechtstreeks via de GitHub API jouw laatste commits en bestandsgroottes op.</p>
+        </div>
+        <div><a href="/activity.html" class="btn btn-accent">Open Live Monitor -&gt;</a></div>
+      </div>
+
+      <div class="ledger-item">
+        <div>
+          <div class="ledger-top"><span>MODULE 06 // GAMES</span><span class="status-tag">ARCADE.HTML</span></div>
+          <h3 style="margin:0.45rem 0 0.25rem;">Dev Arcade (5 Mini-Games)</h3>
+          <p style="font-size:0.88rem; color:var(--muted);">Snake, Roguelike Dungeon, Balatro Lite, Minesweeper en Reflex Trainer.</p>
+        </div>
+        <div><a href="/arcade.html" class="btn">Open Arcade -&gt;</a></div>
+      </div>
+    </section>
+
+    <!-- SNELLE CALCULATORS -->
+    <section class="sec-head">
+      <div class="sec-title"><span class="sec-num">02</span><h2>Snelle Calculators</h2></div>
+      <span class="sec-sub">direct in de browser</span>
+    </section>
+
+    <section class="ledger">
+      <div class="ledger-item">
+        <div>
+          <div class="ledger-top"><span>CALC 01 // ROBLOX LUAU</span><span class="status-tag">COLOR3</span></div>
           <h3 style="margin:0.45rem 0;">Hex naar Color3 Converter</h3>
           <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
             <input type="color" id="pickCol" value="#ff5500" style="width:52px; padding:2px; height:40px;" oninput="syncHex(this.value)" />
@@ -51,10 +120,9 @@
         </div>
       </div>
 
-      <!-- TOOL 2: BSS HONEY CALCULATOR -->
       <div class="ledger-item">
         <div>
-          <div class="ledger-top"><span>TOOL 02 // PYTHON BSS</span><span class="status-tag">HONEY/HR</span></div>
+          <div class="ledger-top"><span>CALC 02 // PYTHON BSS</span><span class="status-tag">HONEY/HR</span></div>
           <h3 style="margin:0.45rem 0;">BSS Honey/uur Calculator</h3>
           <div class="macro-bar" style="margin-top:0;">
             <div class="form-row">
@@ -66,15 +134,13 @@
               <input type="number" id="bssHrs" value="4" min="0.1" step="0.5" oninput="calcHoney()" />
             </div>
           </div>
-          <pre class="code-block" id="honOut" style="margin-bottom:0;">Gemiddelde: 85.0B / uur
-12u nacht-run: 1,020.0B (1.02T)</pre>
+          <pre class="code-block" id="honOut" style="margin-bottom:0;"></pre>
         </div>
       </div>
 
-      <!-- TOOL 3: BLENDER POLYCOUNT CHECKER -->
       <div class="ledger-item">
         <div>
-          <div class="ledger-top"><span>TOOL 03 // BLENDER 3D</span><span class="status-tag">BUDGET</span></div>
+          <div class="ledger-top"><span>CALC 03 // BLENDER 3D</span><span class="status-tag">BUDGET</span></div>
           <h3 style="margin:0.45rem 0;">Low-Poly Budget Checker</h3>
           <div class="macro-bar" style="margin-top:0;">
             <div class="form-row">
@@ -83,7 +149,7 @@
                 <option value="400">Infanterie (max 400)</option>
                 <option value="800">Voertuig / Tank (max 800)</option>
                 <option value="300">Hex Terrein Tegel (max 300)</option>
-                <option value="1200">Gebouw / Hoofdkwartier (max 1200)</option>
+                <option value="1200">Gebouw / HQ (max 1200)</option>
               </select>
             </div>
             <div class="form-row">
@@ -95,15 +161,14 @@
         </div>
       </div>
 
-      <!-- TOOL 4: TERUG NAAR HOME -->
       <div class="ledger-item">
         <div>
-          <div class="ledger-top"><span>INFO // SUGGESTIE</span><span class="status-tag">OPEN</span></div>
-          <h3 style="margin:0.45rem 0;">Mis je een handige tool?</h3>
+          <div class="ledger-top"><span>INFO // SUGGESTIE</span><span class="status-tag">CONTACT</span></div>
+          <h3 style="margin:0.45rem 0;">Idee voor een nieuwe tool?</h3>
           <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0.85rem;">
-            Heb je een idee voor nog een kleine calculator of LuaU/Python snippet? Laat het weten via contact.
+            Heb je nog een calculator of dev-tool nodig? Stuur een berichtje via de contactpagina.
           </p>
-          <a href="/contact.html" class="btn btn-accent">Stuur een idee -&gt;</a>
+          <a href="/contact.html" class="btn">Naar contact.html -&gt;</a>
         </div>
       </div>
     </section>
@@ -125,31 +190,19 @@
       document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
       document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
     }
-
-    function syncHex(val) {
-      document.getElementById('hexIn').value = val;
-      calcColor();
-    }
-
+    function syncHex(v) { document.getElementById('hexIn').value = v; calcColor(); }
     function calcColor() {
       let h = document.getElementById('hexIn').value.trim().replace('#', '');
       if (h.length !== 6 || !/^[0-9a-fA-F]{6}$/.test(h)) return;
       document.getElementById('pickCol').value = '#' + h;
-      const r = parseInt(h.slice(0, 2), 16);
-      const g = parseInt(h.slice(2, 4), 16);
-      const b = parseInt(h.slice(4, 6), 16);
-      document.getElementById('colOut').textContent = `Color3.fromRGB(${r}, ${g}, ${b})`;
+      document.getElementById('colOut').textContent = `Color3.fromRGB(${parseInt(h.slice(0,2),16)}, ${parseInt(h.slice(2,4),16)}, ${parseInt(h.slice(4,6),16)})`;
     }
-
     function calcHoney() {
       const b = parseFloat(document.getElementById('bssHon').value) || 0;
       const h = Math.max(0.1, parseFloat(document.getElementById('bssHrs').value) || 1);
-      const perHr = b / h;
-      const night = perHr * 12;
-      document.getElementById('honOut').textContent =
-        `Gemiddelde: ${perHr.toFixed(1)}B / uur\n12u nacht-run: ${night.toFixed(1)}B (${(night/1000).toFixed(2)}T)`;
+      const hr = b / h;
+      document.getElementById('honOut').textContent = `Gemiddelde: ${hr.toFixed(1)}B / uur\n12u nacht-run: ${(hr*12).toFixed(1)}B (${((hr*12)/1000).toFixed(2)}T)`;
     }
-
     function checkTris() {
       const max = parseInt(document.getElementById('bType').value);
       const cur = parseInt(document.getElementById('bTris').value) || 0;
@@ -158,11 +211,10 @@
         box.textContent = `[OK] ${cur}/${max} tris — Prima geoptimaliseerd voor Roblox RTS!`;
         box.style.borderLeftColor = 'var(--ok)';
       } else {
-        box.textContent = `[LET OP] ${cur}/${max} tris — Probeer Decimate of verwijder verborgen faces (-${cur - max} tris).`;
+        box.textContent = `[LET OP] ${cur}/${max} tris — Verlaag met ${cur - max} tris via Decimate.`;
         box.style.borderLeftColor = 'var(--hostile)';
       }
     }
-
     function copyEl(id) {
       navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
         const t = document.getElementById('toast');
@@ -171,10 +223,7 @@
         setTimeout(() => t.classList.remove('show'), 2200);
       });
     }
-
-    calcColor();
-    calcHoney();
-    checkTris();
+    calcColor(); calcHoney(); checkTris();
   </script>
 </body>
 </html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dadaverver2 — map editor</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      max-width: 440px;
+      user-select: none;
+      touch-action: none;
+    }
+    .map-tile {
+      aspect-ratio: 1;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: crosshair;
+    }
+    .t-0 { background: var(--bg); color: var(--muted); }
+    .t-1 { background: rgba(46, 160, 67, 0.22); color: var(--ok); }
+    .t-2 { background: rgba(210, 153, 34, 0.25); color: var(--warn); }
+    .t-3 { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .t-4 { background: rgba(255, 85, 0, 0.25); color: var(--accent); }
+    .t-5 { background: var(--ok); color: #fff; }
+    .t-6 { background: var(--hostile); color: #fff; }
+    .palette { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand"><span class="brand-marker"></span>dadaverver2</a>
+      <nav class="nav-links">
+        <a href="/index.html">home</a>
+        <a href="/units.html" class="nav-ext">units</a>
+        <a href="/macro.html" class="nav-ext">macro</a>
+        <a href="/lab.html" class="active">lab</a>
+        <a href="/arcade.html" class="nav-ext">arcade</a>
+        <a href="/setup.html" class="nav-ext">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="nav-ext">contact</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>LAB_MODULE: <strong>01</strong></span>
+        <span>TARGET: <strong>ROBLOX_LUAU</strong></span>
+        <span><a href="/lab.html" style="color:var(--accent); text-decoration:none;">← TERUG NAAR LAB</a></span>
+      </div>
+      <h1>RTS Map Editor.</h1>
+      <p class="page-copy">
+        Klik of sleep over het grid om terrein, loopgraven, brandstofdepots en spawns te tekenen. Kopieer de gegenereerde LuaU-tabel rechts voor Roblox Studio.
+      </p>
+    </section>
+
+    <section class="split-panel">
+      <div class="panel-left">
+        <span class="sub-label">// KWAST_KIEZEN</span>
+        <div class="palette" id="palette">
+          <button class="filter-btn active" onclick="setBrush(0, this)">[·] Open</button>
+          <button class="filter-btn" onclick="setBrush(1, this)">[♣] Bos</button>
+          <button class="filter-btn" onclick="setBrush(2, this)">[=] Loopgraaf</button>
+          <button class="filter-btn" onclick="setBrush(3, this)">[~] Water</button>
+          <button class="filter-btn" onclick="setBrush(4, this)">[F] Fuel</button>
+          <button class="filter-btn" onclick="setBrush(5, this)">[A] Spawn A</button>
+          <button class="filter-btn" onclick="setBrush(6, this)">[B] Spawn B</button>
+        </div>
+
+        <div class="map-grid" id="mapGrid"></div>
+
+        <div style="display:flex; gap:0.5rem; margin-top:1rem; flex-wrap:wrap;">
+          <button class="btn" onclick="loadSample()">Voorbeeld Kaart</button>
+          <button class="btn" onclick="randomMap()">Randomize</button>
+          <button class="btn" onclick="clearMap()">Leegmaken</button>
+        </div>
+      </div>
+
+      <div class="panel-right">
+        <div class="tac-toolbar">
+          <span class="sub-label" style="margin:0;">// EXPORT: MAPDATA.LUAU</span>
+          <button class="btn btn-accent" onclick="copyLuau()">Kopieer LuaU</button>
+        </div>
+        <pre class="code-block" id="luauOut" style="max-height:420px; overflow:auto;"></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // /map</span>
+    <a href="/lab.html">terug naar lab.html</a>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function toggleMode() {
+      const p = document.documentElement.getAttribute('data-mode') === 'paper';
+      document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
+      document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
+    }
+
+    const icons = ['·', '♣', '=', '~', 'F', 'A', 'B'];
+    let brush = 1, painting = false;
+    let map = Array.from({length: 10}, () => Array(10).fill(0));
+
+    function setBrush(id, btn) {
+      brush = id;
+      document.querySelectorAll('#palette .filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    function clearMap() {
+      map = Array.from({length: 10}, () => Array(10).fill(0));
+      renderMap();
+    }
+
+    function loadSample() {
+      map = [
+        [5,0,0,1,1,0,3,3,0,0],
+        [0,0,2,2,0,0,3,0,0,4],
+        [0,1,1,0,0,2,0,0,1,0],
+        [0,0,0,0,4,2,0,1,1,0],
+        [3,3,0,2,0,0,0,0,0,0],
+        [0,0,0,0,0,0,2,0,3,3],
+        [0,1,1,0,2,4,0,0,0,0],
+        [0,1,0,0,2,0,0,1,1,0],
+        [4,0,0,3,0,0,2,2,0,0],
+        [0,0,3,3,0,1,1,0,0,6]
+      ];
+      renderMap();
+    }
+
+    function randomMap() {
+      for (let r=0; r<10; r++) for (let c=0; c<10; c++) {
+        const rnd = Math.random();
+        map[r][c] = rnd < 0.55 ? 0 : rnd < 0.75 ? 1 : rnd < 0.87 ? 2 : rnd < 0.94 ? 3 : 4;
+      }
+      map[0][0] = 5; map[9][9] = 6;
+      renderMap();
+    }
+
+    window.addEventListener('pointerup', () => painting = false);
+
+    function renderMap() {
+      const g = document.getElementById('mapGrid');
+      g.innerHTML = '';
+      for (let r=0; r<10; r++) {
+        for (let c=0; c<10; c++) {
+          const val = map[r][c];
+          const cell = document.createElement('div');
+          cell.className = `map-tile t-${val}`;
+          cell.textContent = icons[val];
+          cell.onpointerdown = e => { e.preventDefault(); painting = true; map[r][c] = brush; renderMap(); };
+          cell.onpointerenter = () => { if (painting) { map[r][c] = brush; renderMap(); } };
+          g.appendChild(cell);
+        }
+      }
+      exportLuau();
+    }
+
+    function exportLuau() {
+      const rows = map.map(r => `\t\t{${r.join(', ')}}`).join(',\n');
+      document.getElementById('luauOut').textContent =
+`-- Gegenereerd door dadaverver2 Map Editor
+local MapData = {
+\tTileSize = 16,
+\tLegend = {
+\t\t[0] = "Open", [1] = "Forest", [2] = "Trench",
+\t\t[3] = "Water", [4] = "FuelNode", [5] = "SpawnA", [6] = "SpawnB"
+\t},
+\tGrid = {
+${rows}
+\t}
+}
+
+return MapData`;
+    }
+
+    function copyLuau() {
+      navigator.clipboard.writeText(document.getElementById('luauOut').textContent).then(() => {
+        const t = document.getElementById('toast');
+        t.textContent = '[ok] LuaU MapData gekopieerd';
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2300);
+      });
+    }
+
+    loadSample();
+  </script>
+</body>
+</html>

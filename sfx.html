@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dadaverver2 — sfx & beats</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .seq-wrap { overflow-x: auto; }
+    .seq-row {
+      display: grid;
+      grid-template-columns: 70px repeat(16, minmax(22px, 1fr));
+      gap: 3px;
+      margin-bottom: 4px;
+      align-items: center;
+    }
+    .seq-lbl { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+    .step {
+      height: 28px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      cursor: pointer;
+    }
+    .step.on { background: var(--accent); border-color: var(--accent); }
+    .step.now { outline: 2px solid var(--text); outline-offset: -2px; }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/index.html" class="brand"><span class="brand-marker"></span>dadaverver2</a>
+      <nav class="nav-links">
+        <a href="/index.html">home</a>
+        <a href="/units.html" class="nav-ext">units</a>
+        <a href="/macro.html" class="nav-ext">macro</a>
+        <a href="/lab.html" class="active">lab</a>
+        <a href="/arcade.html" class="nav-ext">arcade</a>
+        <a href="/setup.html" class="nav-ext">setup</a>
+        <a href="/devlog.html" class="nav-ext">devlog</a>
+        <a href="/contact.html" class="nav-ext">contact</a>
+        <button class="mode-btn" id="modeToggle" onclick="toggleMode()">mode: dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-head">
+      <div class="meta-strip">
+        <span>LAB_MODULE: <strong>04</strong></span>
+        <span>EXPORT: <strong>PCM_WAV</strong></span>
+        <span><a href="/lab.html" style="color:var(--accent); text-decoration:none;">← TERUG NAAR LAB</a></span>
+      </div>
+      <h1>8-Bit SFX & Beat Maker.</h1>
+      <p class="page-copy">
+        Bouw een 16-stappen retro beat of test en download losse 8-bit geluidseffecten als <code>.wav</code> voor je Roblox-game.
+      </p>
+    </section>
+
+    <section style="padding:2rem; border-bottom:1px solid var(--border);">
+      <div class="tac-toolbar">
+        <span class="sub-label" style="margin:0;">// 16_STEP_BEAT_SEQUENCER</span>
+        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+          <span style="font-family:var(--mono); font-size:0.76rem;">BPM: <strong id="bpmVal">120</strong></span>
+          <input type="range" min="80" max="165" value="120" style="width:100px;" oninput="bpm=Number(this.value); document.getElementById('bpmVal').textContent=bpm; if(seqOn){stopSeq(); startSeq();}" />
+          <button class="btn btn-accent" id="seqBtn" onclick="toggleSeq()">Play</button>
+          <button class="btn" onclick="presetBeat()">Preset</button>
+          <button class="btn" onclick="clearBeat()">Clear</button>
+        </div>
+      </div>
+
+      <div class="seq-wrap" id="seqGrid"></div>
+    </section>
+
+    <section class="split-panel">
+      <div class="panel-left">
+        <span class="sub-label">// GAME_SFX_SYNTHESIZER</span>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem;">
+          <button class="btn" onclick="triggerSfx('laser')">LASER_SHOT</button>
+          <button class="btn" onclick="triggerSfx('coin')">TOKEN_PICKUP</button>
+          <button class="btn" onclick="triggerSfx('boom')">EXPLOSION</button>
+          <button class="btn" onclick="triggerSfx('click')">UI_CLICK</button>
+          <button class="btn" onclick="triggerSfx('power')">POWER_UP</button>
+          <button class="btn" onclick="triggerSfx('err')">ERROR_BEEP</button>
+        </div>
+      </div>
+
+      <div class="panel-right">
+        <span class="sub-label">// WAV_EXPORT</span>
+        <p style="font-size:0.88rem; color:var(--muted); margin-bottom:1rem;">
+          Laatst afgespeelde SFX: <strong id="lastSfxLbl" style="color:var(--accent);">coin</strong>
+        </p>
+        <button class="btn btn-accent" onclick="downloadWav()">Download Laatste SFX (.wav)</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>dadaverver2 // /sfx</span>
+    <a href="/lab.html">terug naar lab.html</a>
+  </footer>
+
+  <script>
+    function toggleMode() {
+      const p = document.documentElement.getAttribute('data-mode') === 'paper';
+      document.documentElement[p ? 'removeAttribute' : 'setAttribute']('data-mode', 'paper');
+      document.getElementById('modeToggle').textContent = p ? 'mode: dark' : 'mode: paper';
+    }
+
+    let actx = null;
+    function getCtx() {
+      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+      return actx;
+    }
+
+    // SEQUENCER
+    const tracks = ['KICK', 'SNARE', 'HIHAT', 'SYNTH'];
+    let grid = Array.from({length:4}, () => Array(16).fill(false));
+    let stepIdx = 0, seqOn = false, seqTimer = null, bpm = 120;
+
+    function presetBeat() {
+      grid = [
+        [1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0].map(Boolean),
+        [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0].map(Boolean),
+        [1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1].map(Boolean),
+        [1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0].map(Boolean)
+      ];
+      renderSeq();
+    }
+
+    function clearBeat() { grid = Array.from({length:4}, () => Array(16).fill(false)); renderSeq(); }
+
+    function renderSeq() {
+      const wrap = document.getElementById('seqGrid');
+      wrap.innerHTML = tracks.map((name, r) => `
+        <div class="seq-row">
+          <div class="seq-lbl">${name}</div>
+          ${grid[r].map((on, c) => `<div class="step ${on?'on':''} ${seqOn && c===stepIdx?'now':''}" onclick="grid[${r}][${c}]=!grid[${r}][${c}]; renderSeq();"></div>`).join('')}
+        </div>
+      `).join('');
+    }
+
+    function toggleSeq() { seqOn ? stopSeq() : startSeq(); }
+    function startSeq() {
+      getCtx();
+      seqOn = true; document.getElementById('seqBtn').textContent = 'Stop';
+      const ms = (60 / bpm / 4) * 1000;
+      seqTimer = setInterval(() => {
+        const c = getCtx();
+        if (grid[0][stepIdx]) synth(c, c.destination, 'kick');
+        if (grid[1][stepIdx]) synth(c, c.destination, 'snare');
+        if (grid[2][stepIdx]) synth(c, c.destination, 'hat');
+        if (grid[3][stepIdx]) synth(c, c.destination, 'note');
+        renderSeq();
+        stepIdx = (stepIdx + 1) % 16;
+      }, ms);
+    }
+    function stopSeq() {
+      seqOn = false; clearInterval(seqTimer);
+      document.getElementById('seqBtn').textContent = 'Play';
+      renderSeq();
+    }
+
+    // SFX SYNTHESIS (WERKT VOOR LIVE EN OFFLINE WAV EXPORT)
+    let lastSfx = 'coin';
+    function triggerSfx(type) {
+      lastSfx = type;
+      document.getElementById('lastSfxLbl').textContent = type;
+      const c = getCtx();
+      synth(c, c.destination, type);
+    }
+
+    function synth(c, dest, type) {
+      const t = c.currentTime;
+      const g = c.createGain();
+      g.connect(dest);
+
+      if (type === 'kick') {
+        const o = c.createOscillator();
+        o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.14);
+        g.gain.setValueAtTime(0.6, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+        o.connect(g); o.start(t); o.stop(t + 0.16);
+      } else if (type === 'snare' || type === 'hat' || type === 'boom') {
+        const dur = type === 'boom' ? 0.45 : (type === 'snare' ? 0.14 : 0.05);
+        const buf = c.createBuffer(1, Math.floor(c.sampleRate * dur), c.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i=0; i<d.length; i++) d[i] = Math.random()*2 - 1;
+        const src = c.createBufferSource(); src.buffer = buf;
+        const f = c.createBiquadFilter();
+        f.type = type === 'hat' ? 'highpass' : 'lowpass';
+        f.frequency.value = type === 'boom' ? 450 : (type === 'snare' ? 1800 : 5000);
+        g.gain.setValueAtTime(type === 'boom' ? 0.7 : 0.3, t);
+        g.gain.exponentialRampToValueAtTime(0.01, t + dur);
+        src.connect(f); f.connect(g); src.start(t);
+      } else if (type === 'note') {
+        const o = c.createOscillator(); o.type = 'square';
+        o.frequency.value = [220, 261.6, 329.6, 392][stepIdx % 4];
+        g.gain.setValueAtTime(0.15, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+        o.connect(g); o.start(t); o.stop(t + 0.13);
+      } else if (type === 'laser') {
+        const o = c.createOscillator(); o.type = 'sawtooth';
+        o.frequency.setValueAtTime(880, t); o.frequency.exponentialRampToValueAtTime(140, t + 0.22);
+        g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.22);
+        o.connect(g); o.start(t); o.stop(t + 0.23);
+      } else if (type === 'coin') {
+        const o = c.createOscillator(); o.type = 'square';
+        o.frequency.setValueAtTime(987, t); o.frequency.setValueAtTime(1318, t + 0.07);
+        g.gain.setValueAtTime(0.22, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.25);
+        o.connect(g); o.start(t); o.stop(t + 0.26);
+      } else if (type === 'power') {
+        const o = c.createOscillator(); o.type = 'triangle';
+        o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(880, t + 0.35);
+        g.gain.setValueAtTime(0.35, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.36);
+        o.connect(g); o.start(t); o.stop(t + 0.37);
+      } else {
+        const o = c.createOscillator(); o.type = 'square';
+        o.frequency.value = type === 'click' ? 620 : 150;
+        const dur = type === 'click' ? 0.04 : 0.2;
+        g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.01, t + dur);
+        o.connect(g); o.start(t); o.stop(t + dur + 0.01);
+      }
+    }
+
+    async function downloadWav() {
+      const sr = 44100, dur = 0.5;
+      const off = new OfflineAudioContext(1, sr * dur, sr);
+      synth(off, off.destination, lastSfx);
+      const rendered = await off.startRendering();
+      const samples = rendered.getChannelData(0);
+      const buf = new ArrayBuffer(44 + samples.length * 2);
+      const v = new DataView(buf);
+      const ws = (o, s) => { for (let i=0; i<s.length; i++) v.setUint8(o+i, s.charCodeAt(i)); };
+      ws(0,'RIFF'); v.setUint32(4, 36 + samples.length*2, true); ws(8,'WAVE'); ws(12,'fmt ');
+      v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+      v.setUint32(24, sr, true); v.setUint32(28, sr*2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+      ws(36,'data'); v.setUint32(40, samples.length*2, true);
+      for (let i=0; i<samples.length; i++) {
+        let s = Math.max(-1, Math.min(1, samples[i]));
+        v.setInt16(44 + i*2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+      a.download = `dadaverver2_${lastSfx}.wav`;
+      a.click();
+    }
+
+    presetBeat();
+  </script>
+</body>
+</html>
